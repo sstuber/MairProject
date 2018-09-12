@@ -2,28 +2,29 @@ import json
 import os
 
 
-
-def formatFile(dictionary, filename, b):
+def format_file(dictionary, filename, b):
     with open(filename) as json_data:
         d = json.load(json_data)
 
         turns = d['turns']
 
         for turn in turns:
-            turnIndex = turn['turn-index']
+            turn_index = turn['turn-index']
             if b:
-                dictionary[turnIndex] = turn['output']['transcript']
+                dictionary[turn_index] = turn['output']['transcript']
             else:
-                dictionary[turnIndex] = turn['transcription']
+                dictionary[turn_index] = turn['transcription']
 
-def printDialog(userDictionary, systemDictionary):
-    for i in range(max(len(userDictionary), len(systemDictionary))):
-        print("system:", systemDictionary[i])
-        print("user:", userDictionary[i])
+
+def print_dialog(user_dict, system_dict):
+    for i in range(max(len(user_dict), len(system_dict))):
+        print("system:", system_dict[i])
+        print("user:", user_dict[i])
 
     print("--------------------")
 
-if __name__== "__main__":
+
+if __name__ == "__main__":
     folders = []
 
     path = '/Users/mba/Downloads/dstc2_traindev/data/Mar13_S1A1/'
@@ -33,13 +34,13 @@ if __name__== "__main__":
 
     for i in range(50):
         folder = folders[i]
-        logfile = '/Users/mba/Downloads/dstc2_traindev/data/Mar13_S1A1/' + folder + '/log.json'
-        labelfile = '/Users/mba/Downloads/dstc2_traindev/data/Mar13_S1A1/' + folder + '/label.json'
+        log_file = '/Users/mba/Downloads/dstc2_traindev/data/Mar13_S1A1/' + folder + '/log.json'
+        label_file = '/Users/mba/Downloads/dstc2_traindev/data/Mar13_S1A1/' + folder + '/label.json'
 
-        userDictionary = {}
-        systemDictionary = {}
+        user_dictionary = {}
+        system_dictionary = {}
 
-        formatFile(userDictionary, labelfile, False)
-        formatFile(systemDictionary, logfile, True)
+        format_file(user_dictionary, label_file, False)
+        format_file(system_dictionary, log_file, True)
 
-        printDialog(userDictionary, systemDictionary)
+        print_dialog(user_dictionary, system_dictionary)

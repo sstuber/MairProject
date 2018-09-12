@@ -24,14 +24,34 @@ def print_dialog(user_dict, system_dict):
 
     print("--------------------")
 
+def get_foldernames_in_path(path):
+    directory_names = []
 
-if __name__ == "__main__":
+    for entry in os.scandir(path):
+        if not entry.name.startswith('.') and entry.is_dir():
+            directory_names.append(entry.name)
+
+    return directory_names
+
+
+def get_all_data_paths():
+    data_directory_paths = []
+
+    for top_dir_name in get_foldernames_in_path(DATA_PATH):
+        for sub_dir_name in get_foldernames_in_path(f'{DATA_PATH}/{top_dir_name}'):
+            final_path = f'{DATA_PATH}/{top_dir_name}/{sub_dir_name}'
+            data_directory_paths.append(final_path)
+
+    print(data_directory_paths)
+    print(len(data_directory_paths))
+
+
+def main():
     folders = []
 
-    for entry in os.scandir(DATA_PATH+'/Mar13_S1A1/'):
+    for entry in os.scandir(DATA_PATH + '/Mar13_S1A1/'):
         if not entry.name.startswith('.') and entry.is_dir():
             folders.append(entry.name)
-
     for i in range(50):
         folder = folders[i]
         log_file = DATA_PATH + '/Mar13_S1A1/' + folder + '/log.json'
@@ -44,3 +64,7 @@ if __name__ == "__main__":
         format_file(system_dictionary, log_file, True)
 
         print_dialog(user_dictionary, system_dictionary)
+
+
+if __name__ == "__main__":
+    main()

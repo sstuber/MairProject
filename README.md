@@ -9,4 +9,6 @@ small steps to get going
 - If you now want to run any python command you run 
     - `$ pipenv run python *file name/anything*`
 
+## Also
+put all your test data maps like `Mar13_S2A1` in a folder named testdata
 

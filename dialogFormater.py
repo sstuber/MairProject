@@ -1,6 +1,7 @@
 import json
 import os
 
+DATA_PATH = './testdata'
 
 def format_file(dictionary, filename, b):
     with open(filename) as json_data:
@@ -27,15 +28,14 @@ def print_dialog(user_dict, system_dict):
 if __name__ == "__main__":
     folders = []
 
-    path = '/Users/mba/Downloads/dstc2_traindev/data/Mar13_S1A1/'
-    for entry in os.scandir(path):
+    for entry in os.scandir(DATA_PATH+'/Mar13_S1A1/'):
         if not entry.name.startswith('.') and entry.is_dir():
             folders.append(entry.name)
 
     for i in range(50):
         folder = folders[i]
-        log_file = '/Users/mba/Downloads/dstc2_traindev/data/Mar13_S1A1/' + folder + '/log.json'
-        label_file = '/Users/mba/Downloads/dstc2_traindev/data/Mar13_S1A1/' + folder + '/label.json'
+        log_file = DATA_PATH + '/Mar13_S1A1/' + folder + '/log.json'
+        label_file = DATA_PATH + '/Mar13_S1A1/' + folder + '/label.json'
 
         user_dictionary = {}
         system_dictionary = {}

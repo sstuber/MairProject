@@ -105,3 +105,6 @@ venv.bak/
 
 # Editors
 .idea/
+
+# Test data
+testdata/

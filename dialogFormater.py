@@ -3,6 +3,7 @@ import os
 
 DATA_PATH = './testdata'
 
+
 def format_file(dictionary, filename, b):
     with open(filename) as json_data:
         d = json.load(json_data)
@@ -23,6 +24,7 @@ def print_dialog(user_dict, system_dict):
         print("user:", user_dict[i])
 
     print("--------------------")
+
 
 def get_foldernames_in_path(path):
     directory_names = []

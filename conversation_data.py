@@ -66,18 +66,10 @@ class ConversationData:
     def print_conversation(self):
         # add title data
 
-        print(self.get_title())
+        print(self.conversation_to_string())
 
-        for i in range(len(self.conversations)):
-            conversation_dict = self.conversations[i]
+    def conversation_to_string(self):
 
-            for conversation_type in ConversationTypes:
-                pronoun = conversation_type.value
-                sentence = conversation_dict[conversation_type]
-
-                print(f'{pronoun}: {sentence}')
-
-    def save_conversation(self):
         conversation = self.get_title()
 
         for i in range(len(self.conversations)):

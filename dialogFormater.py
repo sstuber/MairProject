@@ -67,17 +67,20 @@ def main():
 
         conversation_data_list.append(ConversationData(label_json, log_json))
 
-    #conversation_data_list[0].print_conversation()
-
     all_conversations = ''
     for conversation in conversation_data_list:
-        all_conversations = all_conversations + conversation.save_conversation()
-
-    print(all_conversations)
+        all_conversations = all_conversations + conversation.conversation_to_string()
 
     file = open('./conversations.txt', 'w')
 
     file.write(all_conversations)
+
+    for i in range(50):
+        conversation = conversation_data_list[i]
+        conversation.print_conversation()
+        input('Press enter to continue')
+
+
 
     # folders = []
     #

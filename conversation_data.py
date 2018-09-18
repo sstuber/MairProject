@@ -3,8 +3,8 @@ from typing import Dict
 
 
 class ConversationTypes(Enum):
-    User = 'user'
     System = 'system'
+    User = 'user'
 
 
 Conversation_Collection = Dict[int, Dict[ConversationTypes, str]]
@@ -52,9 +52,21 @@ class ConversationData:
                     conversation_type: turn_to_conversation_func(turn)
                 }
 
+    def get_title(self):
+        title_json = self.input_data[ConversationTypes.User]
+
+        session_id = title_json['session-id']
+        task_information = title_json['task-information']['goal']['text']
+
+        title_str = f'session id: {session_id}\n{task_information}'
+
+        return title_str
+
     # print the whole conversation
     def print_conversation(self):
         # add title data
+
+        print(self.get_title())
 
         for i in range(len(self.conversations)):
             conversation_dict = self.conversations[i]
@@ -63,4 +75,4 @@ class ConversationData:
                 pronoun = conversation_type.value
                 sentence = conversation_dict[conversation_type]
 
-                print(f'{pronoun}:{sentence}')
+                print(f'{pronoun}: {sentence}')

@@ -1,5 +1,6 @@
 import json
 import os
+from conversation_data import ConversationData, ConversationTypes
 
 DATA_PATH = './testdata'
 
@@ -43,29 +44,49 @@ def get_all_data_paths():
         for sub_dir_name in get_foldernames_in_path(f'{DATA_PATH}/{top_dir_name}'):
             final_path = f'{DATA_PATH}/{top_dir_name}/{sub_dir_name}'
             data_directory_paths.append(final_path)
+    return data_directory_paths
 
-    print(data_directory_paths)
-    print(len(data_directory_paths))
+    # print(data_directory_paths)
+    # print(len(data_directory_paths))
 
 
 def main():
-    folders = []
 
-    for entry in os.scandir(DATA_PATH + '/Mar13_S1A1/'):
-        if not entry.name.startswith('.') and entry.is_dir():
-            folders.append(entry.name)
+    all_paths = get_all_data_paths()
+    conversation_data_list = []
+
     for i in range(50):
-        folder = folders[i]
-        log_file = DATA_PATH + '/Mar13_S1A1/' + folder + '/log.json'
-        label_file = DATA_PATH + '/Mar13_S1A1/' + folder + '/label.json'
+        print(i)
+        path = all_paths[i]
 
-        user_dictionary = {}
-        system_dictionary = {}
+        log_file = f'{path}/log.json'
+        label_file = f'{path}/label.json'
 
-        format_file(user_dictionary, label_file, False)
-        format_file(system_dictionary, log_file, True)
+        log_json = json.load(open(log_file))
+        label_json = json.load(open(label_file))
 
-        print_dialog(user_dictionary, system_dictionary)
+        conversation_data_list.append(ConversationData(label_json, log_json))
+
+    conversation_data_list[0].print_conversation()
+
+
+    # folders = []
+    #
+    # for entry in os.scandir(DATA_PATH + '/Mar13_S1A1/'):
+    #     if not entry.name.startswith('.') and entry.is_dir():
+    #         folders.append(entry.name)
+    # for i in range(50):
+    #     folder = folders[i]
+    #     log_file = DATA_PATH + '/Mar13_S1A1/' + folder + '/log.json'
+    #     label_file = DATA_PATH + '/Mar13_S1A1/' + folder + '/label.json'
+    #
+    #     user_dictionary = {}
+    #     system_dictionary = {}
+    #
+    #     format_file(user_dictionary, label_file, False)
+    #     format_file(system_dictionary, log_file, True)
+    #
+    #     print_dialog(user_dictionary, system_dictionary)
 
 
 if __name__ == "__main__":

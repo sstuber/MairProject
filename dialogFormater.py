@@ -67,8 +67,17 @@ def main():
 
         conversation_data_list.append(ConversationData(label_json, log_json))
 
-    conversation_data_list[0].print_conversation()
+    #conversation_data_list[0].print_conversation()
 
+    all_conversations = ''
+    for conversation in conversation_data_list:
+        all_conversations = all_conversations + conversation.save_conversation()
+
+    print(all_conversations)
+
+    file = open('./conversations.txt', 'w')
+
+    file.write(all_conversations)
 
     # folders = []
     #

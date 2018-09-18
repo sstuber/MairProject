@@ -76,3 +76,19 @@ class ConversationData:
                 sentence = conversation_dict[conversation_type]
 
                 print(f'{pronoun}: {sentence}')
+
+    def save_conversation(self):
+        conversation = self.get_title()
+
+        for i in range(len(self.conversations)):
+            conversation_dict = self.conversations[i]
+
+            for conversation_type in ConversationTypes:
+                pronoun = conversation_type.value
+                sentence = conversation_dict[conversation_type]
+
+                conversation = conversation + f'{pronoun}: {sentence}\n'
+
+        conversation = conversation + '\n'
+
+        return conversation

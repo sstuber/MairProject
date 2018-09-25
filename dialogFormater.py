@@ -67,17 +67,18 @@ def main():
 
         conversation_data_list.append(ConversationData(label_json, log_json))
 
-    all_conversations = ''
+    all_classifications = ''
     for conversation in conversation_data_list:
-        all_conversations = all_conversations + conversation.conversation_to_string()
+        all_classifications = all_classifications + conversation.get_full_classification_str()
 
     file = open('./conversations.txt', 'w')
 
-    file.write(all_conversations)
+    file.write(all_classifications)
 
     for i in range(50):
         conversation = conversation_data_list[i]
-        conversation.print_conversation()
+        conversation.get_full_classification_str()
+        print(conversation.get_full_classification_str())
         input('Press enter to continue')
 
 

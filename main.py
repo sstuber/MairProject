@@ -25,8 +25,7 @@ def get_all_data_paths():
     return data_directory_paths
 
 
-def main():
-
+def write_classification_file():
     all_paths = get_all_data_paths()
     conversation_data_list = []
 
@@ -44,19 +43,17 @@ def main():
         # Parse read data
         conversation_data_list.append(ConversationData(label_json, log_json))
 
-    # write all conversations to a file
-    all_conversations = ''
+    all_classifications = ''
+
     for conversation in conversation_data_list:
-        all_conversations = all_conversations + conversation.conversation_to_string()
+        all_classifications = all_classifications + conversation.get_full_classification_str()
 
     file = open('./conversations.txt', 'w')
-    file.write(all_conversations)
+    file.write(all_classifications)
 
-    # Print a conversation and print the next by pressing enter
-    for i in range(len(conversation_data_list)):
-        conversation = conversation_data_list[i]
-        conversation.print_conversation()
-        input('Press enter to continue')
+
+def main():
+    write_classification_file()
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import Dict
+import re
 
 
 class ConversationTypes(Enum):
@@ -27,13 +28,16 @@ TURN_TO_CONVERSATION_FUNC_DICT = {
 
 class ConversationData:
     def __init__(self, user_data, system_data):
+        self.user_data = user_data
+        self.classification = []
+
         self.input_data: Dict[ConversationTypes, Dict] = {
             ConversationTypes.User: user_data,
             ConversationTypes.System: system_data
         }
+        self.set_classification_data()
 
         self.conversations: Conversation_Collection = {}
-
         self.set_conversation(ConversationTypes.User)
         self.set_conversation(ConversationTypes.System)
 
@@ -51,6 +55,31 @@ class ConversationData:
                 self.conversations[turn_index] = {
                     conversation_type: turn_to_conversation_func(turn)
                 }
+
+    def set_classification_data(self):
+        turns = self.user_data['turns']
+
+        classification_data = []
+
+        for turn in turns:
+            transcription = turn['transcription']
+            classification = turn['semantics']['cam']
+
+            classification = re.sub(r'\(.*\)', '', classification)
+
+            classification_data.append(f'{classification} {transcription}\n')
+
+        self.classification = classification_data
+
+    def get_full_classification_str(self):
+        classify_str = ''
+
+        for classify_string in self.classification:
+            classify_str += classify_string
+
+        classify_str += '-\n'
+
+        return classify_str
 
     def get_title(self):
         title_json = self.input_data[ConversationTypes.User]

@@ -5,28 +5,6 @@ from conversation_data import ConversationData, ConversationTypes
 DATA_PATH = './testdata'
 
 
-def format_file(dictionary, filename, b):
-    with open(filename) as json_data:
-        d = json.load(json_data)
-
-        turns = d['turns']
-
-        for turn in turns:
-            turn_index = turn['turn-index']
-            if b:
-                dictionary[turn_index] = turn['output']['transcript']
-            else:
-                dictionary[turn_index] = turn['transcription']
-
-
-def print_dialog(user_dict, system_dict):
-    for i in range(max(len(user_dict), len(system_dict))):
-        print("system:", system_dict[i])
-        print("user:", user_dict[i])
-
-    print("--------------------")
-
-
 def get_foldernames_in_path(path):
     directory_names = []
 
@@ -46,16 +24,14 @@ def get_all_data_paths():
             data_directory_paths.append(final_path)
     return data_directory_paths
 
-    # print(data_directory_paths)
-    # print(len(data_directory_paths))
-
 
 def main():
 
     all_paths = get_all_data_paths()
     conversation_data_list = []
 
-    for i in range(50):
+    # Read all files
+    for i in range(len(all_paths)):
         print(i)
         path = all_paths[i]
 
@@ -65,40 +41,22 @@ def main():
         log_json = json.load(open(log_file))
         label_json = json.load(open(label_file))
 
+        # Parse read data
         conversation_data_list.append(ConversationData(label_json, log_json))
 
+    # write all conversations to a file
     all_conversations = ''
     for conversation in conversation_data_list:
         all_conversations = all_conversations + conversation.conversation_to_string()
 
     file = open('./conversations.txt', 'w')
-
     file.write(all_conversations)
 
-    for i in range(50):
+    # Print a conversation and print the next by pressing enter
+    for i in range(len(conversation_data_list)):
         conversation = conversation_data_list[i]
         conversation.print_conversation()
         input('Press enter to continue')
-
-
-
-    # folders = []
-    #
-    # for entry in os.scandir(DATA_PATH + '/Mar13_S1A1/'):
-    #     if not entry.name.startswith('.') and entry.is_dir():
-    #         folders.append(entry.name)
-    # for i in range(50):
-    #     folder = folders[i]
-    #     log_file = DATA_PATH + '/Mar13_S1A1/' + folder + '/log.json'
-    #     label_file = DATA_PATH + '/Mar13_S1A1/' + folder + '/label.json'
-    #
-    #     user_dictionary = {}
-    #     system_dictionary = {}
-    #
-    #     format_file(user_dictionary, label_file, False)
-    #     format_file(system_dictionary, log_file, True)
-    #
-    #     print_dialog(user_dictionary, system_dictionary)
 
 
 if __name__ == "__main__":

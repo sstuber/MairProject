@@ -64,12 +64,9 @@ class ConversationData:
 
     # print the whole conversation
     def print_conversation(self):
-        # add title data
-
         print(self.conversation_to_string())
 
     def conversation_to_string(self):
-
         conversation = self.get_title()
 
         for i in range(len(self.conversations)):

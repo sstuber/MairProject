@@ -1,9 +1,9 @@
 import json
 import os
 from conversation_data import ConversationData, ConversationTypes
+from main import CLASSIFICATION_PATH
 
 DATA_PATH = './testdata'
-
 
 def get_foldernames_in_path(path):
     directory_names = []
@@ -48,7 +48,7 @@ def write_classification_file():
     for conversation in conversation_data_list:
         all_classifications = all_classifications + conversation.get_full_classification_str()
 
-    file = open('./conversations.txt', 'w')
+    file = open(CLASSIFICATION_PATH, 'w')
     file.write(all_classifications)
 
 

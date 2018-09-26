@@ -77,8 +77,6 @@ class ConversationData:
         for classify_string in self.classification:
             classify_str += classify_string
 
-        classify_str += '-\n'
-
         return classify_str
 
     def get_title(self):

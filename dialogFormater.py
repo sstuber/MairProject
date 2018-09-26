@@ -50,8 +50,7 @@ def get_all_data_paths():
     # print(len(data_directory_paths))
 
 
-def main():
-
+def write_classification_file():
     all_paths = get_all_data_paths()
     conversation_data_list = []
 
@@ -75,13 +74,9 @@ def main():
 
     file.write(all_classifications)
 
-    for i in range(50):
-        conversation = conversation_data_list[i]
-        conversation.get_full_classification_str()
-        print(conversation.get_full_classification_str())
-        input('Press enter to continue')
 
-
+def main():
+    write_classification_file()
 
     # folders = []
     #

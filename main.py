@@ -1,19 +1,28 @@
 import re
-
+from classify_data import ClassificationData
 
 CLASSIFICATION_PATH = './classification_data.txt'
 
-def main():
 
-
-
+def get_classification_data():
     classification_file = open(CLASSIFICATION_PATH)
 
     classification_str = classification_file.read()
 
-    splitfile = re.split(r'\n', classification_str)
+    split_file = re.split(r'\n', classification_str)
 
-    print(splitfile)
+    classification_data_list = []
+
+    for item in split_file:
+        if len(item) == 0:
+            continue
+
+        classification_data_list.append(ClassificationData(item))
+    return classification_data_list
+
+
+def main():
+    get_classification_data()
 
 
 if __name__ == "__main__":

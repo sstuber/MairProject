@@ -2,6 +2,7 @@ import re
 from classify_data import ClassificationData, ClassificationDictionary, NumberedClassification
 
 CLASSIFICATION_PATH = './classification_data.txt'
+UTTERANCE_LIST_LENGTH = 10
 
 
 def get_classification_data():
@@ -19,6 +20,19 @@ def get_classification_data():
 
         classification_data_list.append(ClassificationData(item))
     return classification_data_list
+
+
+def normalize_utterance_length(utterance_list):
+    normalized_utterance = []
+    utterance_length = len(utterance_list)
+
+    for i in range(UTTERANCE_LIST_LENGTH):
+        if i < utterance_length:
+            normalized_utterance.append(utterance_list[i])
+        else:
+            normalized_utterance.append(1)
+
+    return normalized_utterance
 
 
 def number_train_data(classification_dict_object: ClassificationDictionary, classification_list):
@@ -46,7 +60,7 @@ def number_train_data(classification_dict_object: ClassificationDictionary, clas
         print(classification_object.utterance)
         print(numbered_utterance_list)
 
-        numbered_classification.utterance = numbered_utterance_list
+        numbered_classification.utterance = normalize_utterance_length(numbered_utterance_list)
 
         numbered_classification_list.append(numbered_classification)
 

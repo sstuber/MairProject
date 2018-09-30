@@ -3,7 +3,8 @@ from classify_data import ClassificationData, ClassificationDictionary, Numbered
 
 CLASSIFICATION_PATH = './classification_data.txt'
 UTTERANCE_LIST_LENGTH = 10
-OUTPUT_FILENAME = './numbered_data.txt'
+OUTPUT_FILENAME_SPEECHACT = './numbered_data_speechact.txt'
+OUTPUT_FILENAME_UTTERANCES = './numbered_data_utterances.txt'
 
 
 def get_classification_data():
@@ -70,11 +71,15 @@ def number_train_data(classification_dict_object: ClassificationDictionary, clas
 
 def write_numbered_data(numbered_classification_list):
     # Write the numbered data to a .txt file
-    print('Writing', OUTPUT_FILENAME)
+    print('Writing numbered data files')
 
-    with open(OUTPUT_FILENAME, 'w') as f:
+    with open(OUTPUT_FILENAME_SPEECHACT, 'w') as f:
         for item in numbered_classification_list:
-            f.write(str(item.speech_act) + ', ')
+            f.write(str(item.speech_act))
+            f.write('\n')
+
+    with open(OUTPUT_FILENAME_UTTERANCES, 'w') as f:
+        for item in numbered_classification_list:
             f.write(str(item.utterance))
             f.write('\n')
 

@@ -3,6 +3,7 @@ from classify_data import ClassificationData, ClassificationDictionary, Numbered
 
 CLASSIFICATION_PATH = './classification_data.txt'
 UTTERANCE_LIST_LENGTH = 10
+OUTPUT_FILENAME = './numbered_data.txt'
 
 
 def get_classification_data():
@@ -57,8 +58,8 @@ def number_train_data(classification_dict_object: ClassificationDictionary, clas
         #     numbered_utterance = classification_dict_object.get_training_utterance_id(utterance)
         #     numbered_utterance_list.append(numbered_utterance)
 
-        print(classification_object.utterance)
-        print(numbered_utterance_list)
+        # print(classification_object.utterance)
+        # print(numbered_utterance_list)
 
         numbered_classification.utterance = normalize_utterance_length(numbered_utterance_list)
 
@@ -67,15 +68,23 @@ def number_train_data(classification_dict_object: ClassificationDictionary, clas
     return numbered_classification_list
 
 
+def write_numbered_data(numbered_classification_list):
+    # Write the numbered data to a .txt file
+    print('Writing', OUTPUT_FILENAME)
+
+    with open(OUTPUT_FILENAME, 'w') as f:
+        for item in numbered_classification_list:
+            f.write(str(item.speech_act) + ', ')
+            f.write(str(item.utterance))
+            f.write('\n')
+
 def main():
 
     classification_list = get_classification_data()
     classification_dict_object = ClassificationDictionary()
     numbered_classification_list = number_train_data(classification_dict_object, classification_list)
 
-    for i in range(50):
-        item = numbered_classification_list[i]
-        print(item.utterance)
+    write_numbered_data(numbered_classification_list)
 
 
 if __name__ == "__main__":

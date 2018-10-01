@@ -5,14 +5,12 @@ from numpy import array
 
 
 class LstmModel:
-    def __init__(self, numbered_classification_list,
+    def __init__(self, numbered_classification_train_data, numbered_classification_test_data,
                  classification_dict_object):
         self.classification_dict_object = classification_dict_object
 
-        self.train_data = numbered_classification_list[0:round(len(numbered_classification_list) * 0.85)]
-        self.test_data = numbered_classification_list[
-                    round(len(numbered_classification_list) * 0.85):len(numbered_classification_list)]
-
+        self.train_data = numbered_classification_train_data
+        self.test_data = numbered_classification_test_data
         # Split into input and output for the neural network
         train_values = []
         train_labels = []
@@ -43,7 +41,7 @@ class LstmModel:
         # Train model
         self.model.fit(train_values, train_labels, epochs=5)
 
-    def get_accuracy(self):
+    def print_accuracy(self):
         # Split into input and output for the neural network
         test_values = []
         test_labels = []

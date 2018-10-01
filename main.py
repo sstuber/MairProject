@@ -1,10 +1,7 @@
 import re
-import tensorflow as tf
+from lstm_model import LstmModel
 from random import shuffle
 from classify_data import ClassificationData, ClassificationDictionary, NumberedClassification
-from keras.layers import Input, Embedding, LSTM, Dense, Dropout, TimeDistributed, Activation
-from keras.models import Model, Sequential
-from numpy import array
 
 CLASSIFICATION_PATH = './classification_data.txt'
 UTTERANCE_LIST_LENGTH = 10
@@ -69,69 +66,53 @@ def number_train_data(classification_dict_object: ClassificationDictionary, clas
     return numbered_classification_list
 
 
+def number_test_data(classification_dict_object: ClassificationDictionary, classification_list):
+    numbered_classification_list = []
+
+    # Transform each classification object to a numbered one
+    for classification_object in classification_list:
+        numbered_classification = NumberedClassification()
+
+        # First get the numbered speech act
+        numbered_classification.speech_act = classification_dict_object.get_speech_act_id(
+            classification_object.speech_act
+        )
+
+        # Then transform the utterance string list to a numbered string list
+        numbered_utterance_list = list(map(
+            classification_dict_object.get_testing_utterance_id, classification_object.utterance
+        ))
+
+        # numbered_utterance_list = []
+        # for utterance in classification_object.utterance:
+        #     numbered_utterance = classification_dict_object.get_training_utterance_id(utterance)
+        #     numbered_utterance_list.append(numbered_utterance)
+
+        numbered_classification.utterance = normalize_utterance_length(numbered_utterance_list)
+
+        numbered_classification_list.append(numbered_classification)
+
+    return numbered_classification_list
+
+
 def main():
 
     classification_list = get_classification_data()
+
+    shuffle(classification_list)
+
+    train_data = classification_list[0:round(len(classification_list)*0.85)]
+    test_data = classification_list[
+                round(len(classification_list)*0.85):len(classification_list)]
+
     classification_dict_object = ClassificationDictionary()
-    numbered_classification_list = number_train_data(classification_dict_object, classification_list)
+    numbered_classification_train_data = number_train_data(classification_dict_object, train_data)
+    numbered_classification_test_data = number_test_data(classification_dict_object, test_data)
 
-    # Randomize order of sentences
-    shuffle(numbered_classification_list)
+    lstm_model = LstmModel(numbered_classification_train_data,
+                           numbered_classification_test_data, classification_dict_object)
 
-    # Split randomly in train and test data
-    train_data = numbered_classification_list[0:round(len(numbered_classification_list)*0.85)]
-    test_data = numbered_classification_list[round(len(numbered_classification_list)*0.85):len(numbered_classification_list)]
-
-    # Split into input and output for the neural network
-    train_values = []
-    train_labels = []
-    for i in train_data:
-        train_values.append(i.utterance)
-        output = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        output[i.speech_act] = 1
-        train_labels.append(output)
-
-    # Change to numpy array
-    train_values = array(train_values)
-    train_labels = array(train_labels)
-
-    vocabulary_size = classification_dict_object.utterance_count+1
-
-    # Input has shape of a single sentence (10,)
-    input_tensor = Input(shape=train_values[0].shape)
-
-    # Create layers
-    embedding_layer = Embedding(vocabulary_size, output_dim=64)(input_tensor)
-    hidden_layer = LSTM(units=64, activation='relu')(embedding_layer)
-    output_layer = Dense(units=15, activation='softmax')(hidden_layer)
-
-    # Create model
-    model = Model(inputs=input_tensor, outputs=output_layer)
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-
-    # Train model
-    model.fit(train_values, train_labels, epochs=5)
-
-    # Split into input and output for the neural network
-    test_values = []
-    test_labels = []
-    for i in test_data:
-        test_values.append(i.utterance)
-        test_labels.append(i.speech_act)
-
-    test_values = array(test_values)
-    test_labels = array(test_labels)
-
-    # Predict labels
-    predicted_labels = model.predict(test_values, len(test_values))
-    predicted_labels = array([xi.argmax() for xi in predicted_labels])
-
-    # Print percentage correctly predicted
-    correct = 0
-    for i in range(len(test_labels)):
-        if predicted_labels[i] == test_labels[i]:
-            correct += 1
-    print(correct/len(test_labels))
+    lstm_model.print_accuracy()
 
 
 if __name__ == "__main__":

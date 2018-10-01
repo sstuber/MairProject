@@ -28,7 +28,7 @@ class ClassificationDictionary:
         self.utterance_count = 1
 
         # should this start at 0 or -1?
-        self.speech_act_count = 0
+        self.speech_act_count = -1
 
     def get_speech_act_id(self, speech_act_str):
 

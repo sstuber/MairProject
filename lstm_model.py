@@ -1,36 +1,75 @@
-import keras
 
-'''
-x_train is a list of lists, with each sub-list containing the integers of utterances
-y_train is a list of integers, with each integer representing the speech act of the corresponding set of utterances.
-'''
-
-class LSTM_model():
-    def __init__(self):
-        self.FILENAME_SPEECHACT = './numbered_data_speechact.txt'
-        self.FILENAME_UTTERANCES = './numbered_data_utterances.txt'
-
-        (x_train, y_train) = self.get_traindata()
-        (x_test, y_test) = self.get_testdata()
+from keras.layers import Input, Embedding, LSTM, Dense, Dropout, TimeDistributed, Activation
+from keras.models import Model, Sequential
+from numpy import array
 
 
-    def get_traindata(self):
-        # Import 85% of numbered data as training set
-        utterances = open(self.FILENAME_UTTERANCES, 'r')
-        # convert text to list
-        utterances.close()
+class LstmModel:
+    def __init__(self, numbered_classification_list,
+                 classification_dict_object):
+        self.classification_dict_object = classification_dict_object
 
-        speechacts = open(self.FILENAME_SPEECHACT, 'r')
-        # convert text to list
-        speechacts.close()
+        self.train_data = numbered_classification_list[0:round(len(numbered_classification_list) * 0.85)]
+        self.test_data = numbered_classification_list[
+                    round(len(numbered_classification_list) * 0.85):len(numbered_classification_list)]
 
+        # Split into input and output for the neural network
+        train_values = []
+        train_labels = []
+        for i in self.train_data:
+            train_values.append(i.utterance)
+            output = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            output[i.speech_act] = 1
+            train_labels.append(output)
 
-    def get_testdata(self):
-        # Import 15% of numbered data as test set
-        utterances = open(self.FILENAME_UTTERANCES, 'r')
-        # convert text to list
-        utterances.close()
+        # Change to numpy array
+        train_values = array(train_values)
+        train_labels = array(train_labels)
 
-        speechacts = open(self.FILENAME_SPEECHACT, 'r')
-        # convert text to list
-        speechacts.close()
+        vocabulary_size = classification_dict_object.utterance_count + 1
+
+        # Input has shape of a single sentence (10,)
+        input_tensor = Input(shape=train_values[0].shape)
+
+        # Create layers
+        embedding_layer = Embedding(vocabulary_size, output_dim=64)(input_tensor)
+        hidden_layer = LSTM(units=64, activation='relu')(embedding_layer)
+        output_layer = Dense(units=15, activation='softmax')(hidden_layer)
+
+        # Create model
+        self.model = Model(inputs=input_tensor, outputs=output_layer)
+        self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+        # Train model
+        self.model.fit(train_values, train_labels, epochs=5)
+
+    def get_accuracy(self):
+        # Split into input and output for the neural network
+        test_values = []
+        test_labels = []
+        for i in self.test_data:
+            test_values.append(i.utterance)
+            test_labels.append(i.speech_act)
+
+        test_values = array(test_values)
+        test_labels = array(test_labels)
+
+        # Predict labels
+        predicted_labels = self.model.predict(test_values, len(test_values))
+        predicted_labels = array([xi.argmax() for xi in predicted_labels])
+
+        # Print percentage correctly predicted
+        correct = 0
+        for i in range(len(test_labels)):
+            if predicted_labels[i] == test_labels[i]:
+                correct += 1
+        print(correct / len(test_labels))
+
+    # given a numbered sentence it will return the name of the speech_act
+    def predict_sentence(self, numbered_sentence):
+
+        predicted_sentences = self.model.predict(array(numbered_sentence), 1)
+
+        speech_act_id = predicted_sentences[0].argmax()
+
+        return self.classification_dict_object.get_speech_act_id(speech_act_id)

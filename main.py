@@ -87,7 +87,7 @@ def main():
     train_labels = []
     for i in train_data:
         train_values.append(i.utterance)
-        output = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        output = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         output[i.speech_act] = 1
         train_labels.append(output)
 

@@ -2,6 +2,7 @@
 from keras.layers import Input, Embedding, LSTM, Dense, Dropout, TimeDistributed, Activation
 from keras.models import Model, Sequential
 from numpy import array
+import re
 
 
 class LstmModel:
@@ -39,7 +40,7 @@ class LstmModel:
         self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
         # Train model
-        self.model.fit(train_values, train_labels, epochs=5)
+        self.model.fit(train_values, train_labels, epochs=1)
 
     def print_accuracy(self):
         # Split into input and output for the neural network
@@ -64,10 +65,26 @@ class LstmModel:
         print(correct / len(test_labels))
 
     # given a numbered sentence it will return the name of the speech_act
-    def predict_sentence(self, numbered_sentence):
+    def predict_sentence(self, sentence):
+        sentence = re.split(r'\s', sentence)
+        sentence = list(map(self.classification_dict_object.get_testing_utterance_id, sentence))
+        sentence = normalize_utterance_length(sentence)
 
-        predicted_sentences = self.model.predict(array(numbered_sentence), 1)
+        predicted_sentences = self.model.predict(array([sentence]))
 
         speech_act_id = predicted_sentences[0].argmax()
 
         return self.classification_dict_object.get_speech_act_id(speech_act_id)
+
+
+def normalize_utterance_length(utterance_list):
+    normalized_utterance = []
+    utterance_length = len(utterance_list)
+
+    for i in range(10):
+        if i < utterance_length:
+            normalized_utterance.append(utterance_list[i])
+        else:
+            normalized_utterance.append(1)
+
+    return normalized_utterance

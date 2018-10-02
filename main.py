@@ -1,4 +1,5 @@
 import re
+from numpy import array
 from lstm_model import LstmModel
 from random import shuffle
 from classify_data import ClassificationData, ClassificationDictionary, NumberedClassification
@@ -102,17 +103,26 @@ def main():
     shuffle(classification_list)
 
     train_data = classification_list[0:round(len(classification_list)*0.85)]
-    test_data = classification_list[
-                round(len(classification_list)*0.85):len(classification_list)]
+    test_data = classification_list[round(len(classification_list)*0.85):len(classification_list)]
 
     classification_dict_object = ClassificationDictionary()
     numbered_classification_train_data = number_train_data(classification_dict_object, train_data)
     numbered_classification_test_data = number_test_data(classification_dict_object, test_data)
 
+
+
     lstm_model = LstmModel(numbered_classification_train_data,
                            numbered_classification_test_data, classification_dict_object)
 
     lstm_model.print_accuracy()
+    ask_sentence(lstm_model)
+
+
+def ask_sentence(lstm):
+    sentence = input("Enter sentence \n")
+    print(lstm.predict_sentence(sentence) + "\n")
+    ask_sentence(lstm)
+
 
 
 if __name__ == "__main__":

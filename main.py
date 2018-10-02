@@ -1,11 +1,9 @@
 import re
-from numpy import array
-from lstm_model import LstmModel
+from lstm_model import LstmModel, UTTERANCE_LIST_LENGTH, normalize_utterance_length
 from random import shuffle
 from classify_data import ClassificationData, ClassificationDictionary, NumberedClassification
 
 CLASSIFICATION_PATH = './classification_data.txt'
-UTTERANCE_LIST_LENGTH = 10
 
 
 def get_classification_data():
@@ -25,19 +23,6 @@ def get_classification_data():
     return classification_data_list
 
 
-def normalize_utterance_length(utterance_list):
-    normalized_utterance = []
-    utterance_length = len(utterance_list)
-
-    for i in range(UTTERANCE_LIST_LENGTH):
-        if i < utterance_length:
-            normalized_utterance.append(utterance_list[i])
-        else:
-            normalized_utterance.append(1)
-
-    return normalized_utterance
-
-
 def number_train_data(classification_dict_object: ClassificationDictionary, classification_list):
     numbered_classification_list = []
 
@@ -54,11 +39,6 @@ def number_train_data(classification_dict_object: ClassificationDictionary, clas
         numbered_utterance_list = list(map(
             classification_dict_object.get_training_utterance_id, classification_object.utterance
         ))
-
-        # numbered_utterance_list = []
-        # for utterance in classification_object.utterance:
-        #     numbered_utterance = classification_dict_object.get_training_utterance_id(utterance)
-        #     numbered_utterance_list.append(numbered_utterance)
 
         numbered_classification.utterance = normalize_utterance_length(numbered_utterance_list)
 
@@ -84,11 +64,6 @@ def number_test_data(classification_dict_object: ClassificationDictionary, class
             classification_dict_object.get_testing_utterance_id, classification_object.utterance
         ))
 
-        # numbered_utterance_list = []
-        # for utterance in classification_object.utterance:
-        #     numbered_utterance = classification_dict_object.get_training_utterance_id(utterance)
-        #     numbered_utterance_list.append(numbered_utterance)
-
         numbered_classification.utterance = normalize_utterance_length(numbered_utterance_list)
 
         numbered_classification_list.append(numbered_classification)
@@ -109,8 +84,6 @@ def main():
     numbered_classification_train_data = number_train_data(classification_dict_object, train_data)
     numbered_classification_test_data = number_test_data(classification_dict_object, test_data)
 
-
-
     lstm_model = LstmModel(numbered_classification_train_data,
                            numbered_classification_test_data, classification_dict_object)
 
@@ -120,9 +93,8 @@ def main():
 
 def ask_sentence(lstm):
     sentence = input("Enter sentence \n")
-    print(lstm.predict_sentence(sentence) + "\n")
+    print(f'speech act label: {lstm.predict_sentence(sentence)}\n')
     ask_sentence(lstm)
-
 
 
 if __name__ == "__main__":

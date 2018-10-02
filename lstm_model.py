@@ -4,6 +4,9 @@ from keras.models import Model, Sequential
 from numpy import array
 import re
 
+UTTERANCE_LIST_LENGTH = 10
+EPOCHS = 5
+
 
 class LstmModel:
     def __init__(self, numbered_classification_train_data, numbered_classification_test_data,
@@ -40,7 +43,7 @@ class LstmModel:
         self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
         # Train model
-        self.model.fit(train_values, train_labels, epochs=1)
+        self.model.fit(train_values, train_labels, epochs=EPOCHS)
 
     def print_accuracy(self):
         # Split into input and output for the neural network
@@ -66,12 +69,11 @@ class LstmModel:
 
     # given a numbered sentence it will return the name of the speech_act
     def predict_sentence(self, sentence):
-        sentence = re.split(r'\s', sentence)
-        sentence = list(map(self.classification_dict_object.get_testing_utterance_id, sentence))
-        sentence = normalize_utterance_length(sentence)
+        split_sentence = re.split(r'\s', sentence)
+        numbered_sentence = list(map(self.classification_dict_object.get_testing_utterance_id, split_sentence))
+        normalized_numbered_sentence = normalize_utterance_length(numbered_sentence)
 
-        predicted_sentences = self.model.predict(array([sentence]))
-
+        predicted_sentences = self.model.predict(array([normalized_numbered_sentence]))
         speech_act_id = predicted_sentences[0].argmax()
 
         return self.classification_dict_object.get_speech_act_id(speech_act_id)
@@ -81,7 +83,7 @@ def normalize_utterance_length(utterance_list):
     normalized_utterance = []
     utterance_length = len(utterance_list)
 
-    for i in range(10):
+    for i in range(UTTERANCE_LIST_LENGTH):
         if i < utterance_length:
             normalized_utterance.append(utterance_list[i])
         else:

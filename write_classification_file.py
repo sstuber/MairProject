@@ -1,7 +1,7 @@
 import json
 import os
 from conversation_data import ConversationData, ConversationTypes
-from main import CLASSIFICATION_PATH
+from classify_sentence import CLASSIFICATION_PATH
 
 DATA_PATH = './testdata'
 

@@ -54,7 +54,7 @@ def transform_sentence(types_dict, sentence):
             closest_item_match = find_closest_match(types_dict, word_str)
             return_list.append(closest_item_match)
 
-    print(sentence)
+    return return_list
 
 
 # returns item, item_type tuple
@@ -65,7 +65,7 @@ def find_closest_match(types_dict, search_str):
 
     for key in types_dict:
 
-        key_distance = StringMatcher(search_str, key).distance()
+        key_distance = StringMatcher(seq1=search_str, seq2=key).distance()
 
         if key_distance < closest_distance:
             closest_match = key
@@ -79,6 +79,14 @@ def find_closest_match(types_dict, search_str):
 def main():
 
     types_dict = get_types_file_dict()
+
+    sentence = input("Enter sentence \n")
+
+    sequence = transform_sentence(types_dict,sentence)
+
+    print(sequence)
+
+
 
 
 if __name__ == "__main__":

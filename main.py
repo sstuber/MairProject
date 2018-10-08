@@ -1,7 +1,10 @@
 from functools import reduce
+from Levenshtein.StringMatcher import StringMatcher
 import re
 
+
 TYPES_PATH = './types.csv'
+DEFAULT_DISTANCE = 999999999999999999999999
 
 
 def get_types_file_dict():
@@ -27,12 +30,50 @@ def get_types_file_dict():
     return final_dict
 
 
-def add_word_to_dict(dict,word_list):
+def add_word_to_dict(types_dict, word_list):
 
     word_name = word_list[0]
     word_value = word_list[2]
-    dict[word_name] = word_value
-    return dict
+    types_dict[word_name] = word_value
+    return types_dict
+
+
+def transform_sentence(types_dict, sentence):
+
+    sentence = re.sub(r'[^\w\s]', '', sentence)
+    lowercase_sentence = sentence.lower()
+    split_sentence = re.split(r'\s+', lowercase_sentence)
+
+    return_list = []
+    for word_str in split_sentence:
+        if word_str in types_dict:
+            item_type = types_dict[word_str]
+            return_list.append((word_str, item_type))
+
+        else:
+            closest_item_match = find_closest_match(types_dict, word_str)
+            return_list.append(closest_item_match)
+
+    print(sentence)
+
+
+# returns item, item_type tuple
+def find_closest_match(types_dict, search_str):
+
+    closest_match = ''
+    closest_distance = DEFAULT_DISTANCE
+
+    for key in types_dict:
+
+        key_distance = StringMatcher(search_str, key).distance()
+
+        if key_distance < closest_distance:
+            closest_match = key
+            closest_distance = key_distance
+
+    closest_type = types_dict[closest_match]
+
+    return closest_match, closest_type
 
 
 def main():

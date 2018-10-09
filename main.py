@@ -1,11 +1,12 @@
 from functools import reduce
 from Levenshtein.StringMatcher import StringMatcher
+from graph_data import GraphNode
 import re
 
 
 TYPES_PATH = './types.csv'
 DEFAULT_DISTANCE = 999999999999999999999999
-MATCH_REGEX =r'(\w+|\(.+\))(\/|\\)(\(.+\)|\w+)|(\w+)'
+MATCH_REGEX = r'(\w+|\(.+\))(\/|\\)(\(.+\)|\w+)|(\w+)'
 
 
 def get_types_file_dict():
@@ -79,7 +80,7 @@ def find_closest_match(types_dict, search_str):
 
 def main():
 
-    test = '(NP/S)/NP'
+    test = '((NP/S)/NP)'
 
     regex = re.match(MATCH_REGEX, test)
 
@@ -92,9 +93,21 @@ def main():
 
     sequence = transform_sentence(types_dict,sentence)
 
-    print(sequence)
+    node_array = list(map(GraphNode, sequence))
+
+    print(node_array[1])
+
+    for i in range(len(node_array)):
+        left_node = None
+        current_node = node_array[i]
+        right_node = None
 
 
+        if i != 0:
+            left_node = node_array[i-1]
+
+        if i == (len(node_array) - 1):
+            right_node = node_array[i+1]
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ import re
 
 TYPES_PATH = './types.csv'
 DEFAULT_DISTANCE = 999999999999999999999999
+MATCH_REGEX =r'(\w+|\(.+\))(\/|\\)(\(.+\)|\w+)|(\w+)'
 
 
 def get_types_file_dict():
@@ -77,6 +78,13 @@ def find_closest_match(types_dict, search_str):
 
 
 def main():
+
+    test = '(NP/S)/NP'
+
+    regex = re.match(MATCH_REGEX, test)
+
+    print(regex.groupdict())
+    print(regex.groups())
 
     types_dict = get_types_file_dict()
 

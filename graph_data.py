@@ -9,8 +9,11 @@ RIGHT_HAND_ID = 2
 SINGLETON_ID = 3
 
 
-
 class GraphNode:
+
+    def __str__(self):
+        return f'GraphNode: {self.sentence} {self.type} {self.match_tuple}\n'
+
     def __init__(self, information_tuple):
         self.sentence, self.type = information_tuple
 

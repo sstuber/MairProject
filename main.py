@@ -1,6 +1,6 @@
 from functools import reduce
 from Levenshtein.StringMatcher import StringMatcher
-from graph_data import GraphNode
+from graph_data import GraphNode, LEFT_HAND_ID, RIGHT_HAND_ID
 import re
 
 
@@ -36,7 +36,11 @@ def add_word_to_dict(types_dict, word_list):
 
     word_name = word_list[0]
     word_value = word_list[2]
-    types_dict[word_name] = word_value
+
+    if word_name in types_dict:
+        types_dict[word_name].append(word_value)
+    else:
+        types_dict[word_name] = [word_value]
     return types_dict
 
 
@@ -78,36 +82,113 @@ def find_closest_match(types_dict, search_str):
     return closest_match, closest_type
 
 
+def amount_of_dubbles(acc: int, word_tuple):
+    _, type_array = word_tuple
+
+    length_type_array = len(type_array)
+
+    if length_type_array > 1:
+        return length_type_array + acc
+
+    return acc
+
+def tuple_to_graph_node(tuple):
+    name, type_array = tuple
+
+    return_array = []
+    for type_str in type_array:
+        return_array.append(GraphNode((name, type_str)))
+
+    return return_array
+
+
+# graph array is an array of node arrays
+def fold_graph_array(graph_array):
+
+    #  end condition
+    if len(graph_array) == 1:
+        return graph_array[0][0]
+
+    for i in range(len(graph_array)):
+        left_nodes = [None]
+        current_nodes = graph_array[i]
+        right_nodes = [None]
+
+        if i != 0:
+            left_nodes = graph_array[i-1]
+
+        if i < len(graph_array) - 1:
+            right_nodes = graph_array[i+1]
+
+        for n in range(len(left_nodes)):
+            for m in range(len(current_nodes)):
+                for o in range(len(right_nodes)):
+                    left_node = left_nodes[n]
+                    current_node = current_nodes[m]
+                    right_node = right_nodes[o]
+
+                    # Check if we can do a elimination with the current node
+                    found_node_tuple = current_node.elem_func(left_node,current_node, right_node)
+
+                    if found_node_tuple is None:
+                        continue
+
+                    found_node, used_node_sentence = found_node_tuple
+
+                    # remove used nodes from the list
+                    filtered_array = list(filter(
+                        lambda node:
+                        node[0].sentence != used_node_sentence and node[0].sentence != current_node.sentence, graph_array
+                    ))
+
+                    print(found_node.sentence)
+                    print(found_node.type)
+
+                    filtered_array.insert(i, [found_node])
+
+                    result = fold_graph_array(filtered_array)
+
+                    if result is not None:
+                        return result
+                    # go deeper with new array with 2 nodes less
+
+    return None
+
+
 def main():
 
-    test = '((NP/S)/NP)'
-
-    regex = re.match(MATCH_REGEX, test)
-
-    print(regex.groupdict())
-    print(regex.groups())
+    # test = '((NP/S)/NP)'
+    #
+    # regex = re.match(MATCH_REGEX, test)
+    #
+    # print(regex.groupdict())
+    # print(regex.groups())
 
     types_dict = get_types_file_dict()
 
-    sentence = input("Enter sentence \n")
+    sentence = input('Enter \\Nsenntence\n')
 
-    sequence = transform_sentence(types_dict,sentence)
+    sequence = transform_sentence(types_dict, sentence)
 
-    node_array = list(map(GraphNode, sequence))
+    graph_array = list(map(tuple_to_graph_node, sequence))
 
-    print(node_array[1])
+    final_graph = fold_graph_array(graph_array)
 
-    for i in range(len(node_array)):
-        left_node = None
-        current_node = node_array[i]
-        right_node = None
-
-
-        if i != 0:
-            left_node = node_array[i-1]
-
-        if i == (len(node_array) - 1):
-            right_node = node_array[i+1]
+    # node_array = list(map(GraphNode, sequence))
+    #
+    # print(node_array[1])
+    #
+    # for i in range(len(node_array)):
+    #     left_node = None
+    #     current_node = node_array[i]
+    #     right_node = None
+    #
+    #
+    #     if i != 0:
+    #         left_node = node_array[i-1]
+    #
+    #     if i == (len(node_array) - 1):
+    #         right_node = node_array[i+1]
 
 
 if __name__ == "__main__":

@@ -9,7 +9,10 @@ RIGHT_HAND_ID = 2
 SINGLETON_ID = 3
 
 
+
 class GraphNode:
+
+    current_node_id = 0
 
     def __str__(self):
         return f'GraphNode: {self.sentence} {self.type} {self.match_tuple}\n'
@@ -19,13 +22,16 @@ class GraphNode:
         self.right_child = None
         self.left_child = None
 
+        GraphNode.current_node_id += 1
+        self.id = GraphNode.current_node_id
+
         match_object = re.match(MATCH_REGEX, self.type)
 
         self.match_tuple = match_object.groups()
 
         function_dict = {
             '/': elem_right,
-            '\ ': elem_left,
+            '\\': elem_left,
             None: singleton_func
         }
 
@@ -40,7 +46,7 @@ def normalize_type(type_str: str):
     return type_str
 
 
-def elem_right(left_node, right_node, current_node):
+def elem_right(left_node, current_node, right_node):
 
     # if right node does not exist we do nothing
     if right_node is None:
@@ -63,10 +69,10 @@ def elem_right(left_node, right_node, current_node):
     node.left_child = current_node
     node.right_child = right_node
 
-    return node
+    return node, right_node.sentence
 
 
-def elem_left(left_node, right_node, current_node):
+def elem_left(left_node, current_node, right_node):
 
     if left_node is None:
         return None
@@ -86,7 +92,7 @@ def elem_left(left_node, right_node, current_node):
     node.left_child = left_node
     node.right_child = current_node
 
-    return node
+    return node, left_node.sentence
 
 
 def singleton_func(left_node, right_node, current_node):

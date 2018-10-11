@@ -21,6 +21,7 @@ class GraphNode:
         self.sentence, self.type = information_tuple
         self.right_child = None
         self.left_child = None
+        self.elem_type = None
 
         GraphNode.current_node_id += 1
         self.id = GraphNode.current_node_id
@@ -52,7 +53,7 @@ def elem_right(left_node, current_node, right_node):
     if right_node is None:
         return None
 
-    right_hand_side = current_node.match_tuple[RIGHT_HAND_ID]
+    right_hand_side = normalize_type(current_node.match_tuple[RIGHT_HAND_ID])
 
     # if type does not fit this elem we do nothing
     if right_node.type != right_hand_side:
@@ -68,8 +69,9 @@ def elem_right(left_node, current_node, right_node):
 
     node.left_child = current_node
     node.right_child = right_node
+    node.elem_type = 'right'
 
-    return node, right_node.sentence
+    return node, right_node.sentence, 'right'
 
 
 def elem_left(left_node, current_node, right_node):
@@ -77,7 +79,7 @@ def elem_left(left_node, current_node, right_node):
     if left_node is None:
         return None
 
-    left_hand_side = current_node.match_tuple[LEFT_HAND_ID]
+    left_hand_side = normalize_type(current_node.match_tuple[LEFT_HAND_ID])
 
     if left_node.type != left_hand_side:
         return None
@@ -91,8 +93,9 @@ def elem_left(left_node, current_node, right_node):
 
     node.left_child = left_node
     node.right_child = current_node
+    node.elem_type = 'left'
 
-    return node, left_node.sentence
+    return node, left_node.sentence, 'left'
 
 
 def singleton_func(left_node, right_node, current_node):

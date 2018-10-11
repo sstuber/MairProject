@@ -107,6 +107,7 @@ def fold_graph_array(graph_array):
 
     #  end condition
     if len(graph_array) == 1:
+        print(f'Succes fully ended with {graph_array[0][0]}')
         return graph_array[0][0]
 
     for i in range(len(graph_array)):
@@ -133,7 +134,7 @@ def fold_graph_array(graph_array):
                     if found_node_tuple is None:
                         continue
 
-                    found_node, used_node_sentence = found_node_tuple
+                    found_node, used_node_sentence, elem_type = found_node_tuple
 
                     # remove used nodes from the list
                     filtered_array = list(filter(
@@ -144,7 +145,12 @@ def fold_graph_array(graph_array):
                     print(found_node.sentence)
                     print(found_node.type)
 
-                    filtered_array.insert(i, [found_node])
+                    insert_index = i
+
+                    if elem_type == 'left' and insert_index > 0:
+                        insert_index -= 1
+
+                    filtered_array.insert(insert_index, [found_node])
 
                     result = fold_graph_array(filtered_array)
 
@@ -166,7 +172,7 @@ def main():
 
     types_dict = get_types_file_dict()
 
-    sentence = input('Enter \\Nsenntence\n')
+    sentence = input('Enter senntence\n')
 
     sequence = transform_sentence(types_dict, sentence)
 

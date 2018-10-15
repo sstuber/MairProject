@@ -8,7 +8,10 @@ FUNCTION_ID = 1
 RIGHT_HAND_ID = 2
 SINGLETON_ID = 3
 
-
+elem_type_dict = {
+    'right': '/E',
+    'left': '\\E'
+}
 
 class GraphNode:
 
@@ -37,6 +40,23 @@ class GraphNode:
         }
 
         self.elem_func = function_dict[self.match_tuple[FUNCTION_ID]]
+
+    def print_whole_graph(self, depth=0):
+        prefix_str = '' + '...' * depth
+
+        print(f'{prefix_str}{self.type}')
+        print(f'{prefix_str}{self.sentence}')
+
+        if self.elem_type is None:
+            return
+
+        self.left_child.print_whole_graph(depth+1)
+        self.right_child.print_whole_graph(depth+1)
+
+        elem_type = elem_type_dict[self.elem_type]
+
+        print(f'{prefix_str}Rule: [{elem_type}]')
+
 
 
 def normalize_type(type_str: str):

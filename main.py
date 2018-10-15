@@ -162,14 +162,6 @@ def fold_graph_array(graph_array):
 
 
 def main():
-
-    # test = '((NP/S)/NP)'
-    #
-    # regex = re.match(MATCH_REGEX, test)
-    #
-    # print(regex.groupdict())
-    # print(regex.groups())
-
     types_dict = get_types_file_dict()
 
     sentence = input('Enter senntence\n')
@@ -180,22 +172,8 @@ def main():
 
     final_graph = fold_graph_array(graph_array)
 
-    # node_array = list(map(GraphNode, sequence))
-    #
-    # print(node_array[1])
-    #
-    # for i in range(len(node_array)):
-    #     left_node = None
-    #     current_node = node_array[i]
-    #     right_node = None
-    #
-    #
-    #     if i != 0:
-    #         left_node = node_array[i-1]
-    #
-    #     if i == (len(node_array) - 1):
-    #         right_node = node_array[i+1]
-
+    if final_graph is not None:
+        final_graph.print_whole_graph(0)
 
 if __name__ == "__main__":
     main()

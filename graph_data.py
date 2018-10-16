@@ -24,6 +24,7 @@ class GraphNode:
         self.sentence, self.type = information_tuple
         self.right_child = None
         self.left_child = None
+        self.parent_node = None
         self.elem_type = None
 
         GraphNode.current_node_id += 1
@@ -87,6 +88,9 @@ def elem_right(left_node, current_node, right_node):
 
     node = GraphNode((new_sentence, new_type))
 
+    current_node.parent_node = node
+    right_node.parent_node = node
+
     node.left_child = current_node
     node.right_child = right_node
     node.elem_type = 'right'
@@ -110,6 +114,9 @@ def elem_left(left_node, current_node, right_node):
     new_sentence = f'{left_node.sentence} {current_node.sentence}'
 
     node = GraphNode((new_sentence, new_type))
+
+    current_node.parent_node = node
+    left_node.parent_node = node
 
     node.left_child = left_node
     node.right_child = current_node

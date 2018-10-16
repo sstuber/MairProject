@@ -59,6 +59,20 @@ class GraphNode:
         print(f'{prefix_str}Rule: [{elem_type}]')
 
 
+def find_tree_paths(graphnode):
+
+    if graphnode.elem_type is None:
+        return [[graphnode]]
+
+    paths_until_now1 = find_tree_paths(graphnode.right_child)
+    paths_until_now2 = find_tree_paths(graphnode.left_child)
+
+    all_paths_until_now = paths_until_now1 + paths_until_now2
+
+    for path in all_paths_until_now:
+        path.append(graphnode)
+
+    return all_paths_until_now
 
 def normalize_type(type_str: str):
 

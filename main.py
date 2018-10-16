@@ -1,12 +1,19 @@
 from functools import reduce
 from Levenshtein.StringMatcher import StringMatcher
-from graph_data import GraphNode, LEFT_HAND_ID, RIGHT_HAND_ID
+from graph_data import GraphNode, LEFT_HAND_ID, RIGHT_HAND_ID, find_tree_paths
 import re
+import json
 
-
+ONTOLOGY_PATH = './ontology.json'
 TYPES_PATH = './types.csv'
 DEFAULT_DISTANCE = 999999999999999999999999
 MATCH_REGEX = r'(\w+|\(.+\))(\/|\\)(\(.+\)|\w+)|(\w+)'
+
+VALUE_DICT = {
+    'restaurant': ['pricerange'],
+    'food': ['food'],
+    'town': ['area']
+}
 
 
 def get_types_file_dict():
@@ -161,6 +168,22 @@ def fold_graph_array(graph_array):
     return None
 
 
+def get_variable_dict():
+    file = open(ONTOLOGY_PATH)
+    json_file = json.load(file)
+
+    file.close()
+
+    informables = json_file['informable']
+    variable_dict = {}
+
+    for key, value in informables.items():
+        for variable_word in value:
+            variable_dict[variable_word] = key
+
+    return variable_dict
+
+
 def main():
     types_dict = get_types_file_dict()
 
@@ -172,8 +195,15 @@ def main():
 
     final_graph = fold_graph_array(graph_array)
 
-    if final_graph is not None:
-        final_graph.print_whole_graph(0)
+    if final_graph is None:
+        return
+
+    final_graph.print_whole_graph(0)
+
+    value = find_tree_paths(final_graph)
+
+    print(value)
+
 
 if __name__ == "__main__":
     main()

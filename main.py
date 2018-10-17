@@ -1,11 +1,12 @@
 from functools import reduce
 from Levenshtein.StringMatcher import StringMatcher
 from graph_data import GraphNode, LEFT_HAND_ID, RIGHT_HAND_ID, find_tree_paths
+from variable_paths import VariablePath
 import re
 import json
 
 ONTOLOGY_PATH = './ontology.json'
-TYPES_PATH = './types.csv'
+TYPES_PATH = './inform_vocabulary_edited.csv'
 DEFAULT_DISTANCE = 999999999999999999999999
 MATCH_REGEX = r'(\w+|\(.+\))(\/|\\)(\(.+\)|\w+)|(\w+)'
 
@@ -115,7 +116,6 @@ def fold_graph_array(graph_array):
 
     #  end condition
     if len(graph_array) == 1:
-        print(f'Succes fully ended with {graph_array[0][0]}')
         return graph_array[0][0]
 
     for i in range(len(graph_array)):
@@ -149,9 +149,6 @@ def fold_graph_array(graph_array):
                         lambda node:
                         node[0].sentence != used_node_sentence and node[0].sentence != current_node.sentence, graph_array
                     ))
-
-                    print(found_node.sentence)
-                    print(found_node.type)
 
                     insert_index = i
 
@@ -223,22 +220,21 @@ def find_preference_statements(graph):
         if statement is not None:
             # Check if trees overlap
             if statement[1] in preference_statements.keys():
-                print("overlapping sub trees")
                 preference_statements.pop(statement[1], None)
             else:
-                preference_statements[statement[1]] = statement[0]
+                preference_statements[statement[1]] = VariablePath(statement)
 
     # Search for overlapping sub trees
     removed_keys = set()
     for key in preference_statements.keys():
         for key2 in preference_statements.keys():
-            if key != key2 and preference_statements[key].sentence in preference_statements[key2].sentence:
+            if key != key2 and preference_statements[key].crossing_node.sentence in \
+                    preference_statements[key2].crossing_node.sentence:
                 removed_keys.add(key)
                 removed_keys.add(key2)
 
     # Remove overlapping subtrees
     for key in removed_keys:
-        print("overlapping sub trees 2")
         preference_statements.pop(key, None)
 
     return preference_statements
@@ -258,17 +254,14 @@ def main():
     if final_graph is None:
         return
 
-    #final_graph.print_whole_graph(0)
-
-
+    final_graph.print_whole_graph(0)
 
     # a chinese restaurant in the south part of town
 
     preference_statements = find_preference_statements(final_graph)
 
-    for key in preference_statements.keys():
-        print(key + ": " + preference_statements[key].sentence)
-    print("")
+    for key, value in preference_statements.items():
+        value.print_variable_path()
 
 
 if __name__ == "__main__":

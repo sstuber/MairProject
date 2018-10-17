@@ -4,7 +4,6 @@ class VariablePath:
     def __init__(self, variable_tuples):
         self.crossing_node, self.variable_type_name, self.value_path, self.variable_path = variable_tuples
 
-
     def print_variable_path(self):
 
         variable_name = self.variable_path[0].sentence

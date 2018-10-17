@@ -11,6 +11,7 @@ MATCH_REGEX = r'(\w+|\(.+\))(\/|\\)(\(.+\)|\w+)|(\w+)'
 
 VALUE_DICT = {
     'restaurant': ['pricerange', 'food'],
+    'priced': ['pricerange'],
     'food': ['food'],
     'town': ['area']
 }
@@ -184,8 +185,8 @@ def get_variable_dict():
     return variable_dict
 
 
-def preference_statements_helper(value_path, found_variables, possible_values, variable_dict):
-
+def find_preference_statements_helper(value_path, found_variables, possible_values, variable_dict):
+    # Loop over all variable nodes per value node
     for value_node in value_path:
         for variable_path in found_variables:
 
@@ -195,6 +196,50 @@ def preference_statements_helper(value_path, found_variables, possible_values, v
                     if value_node.id == variable_node.id:
                         return [value_node, variable_dict[variable_path[0].sentence]]
     return None
+
+
+def find_preference_statements(graph):
+    # Find paths to all leaves
+    leaf_paths = find_tree_paths(graph)
+
+    # Extract variable and key leaves
+    variable_dict = get_variable_dict()
+    found_values = list()
+    found_variables = list()
+    for path in leaf_paths:
+        if path[0].sentence in VALUE_DICT.keys():
+            found_values.append(path)
+        if path[0].sentence in variable_dict.keys():
+            found_variables.append(path)
+
+    # Find all preference statements
+    preference_statements = dict()
+    for value_path in found_values:
+        possible_values = VALUE_DICT[value_path[0].sentence]
+
+        statement = find_preference_statements_helper(value_path, found_variables, possible_values, variable_dict)
+        if statement is not None:
+            # Check if trees overlap
+            if statement[1] in preference_statements.keys():
+                print("overlapping sub trees")
+                preference_statements.pop(statement[1], None)
+            else:
+                preference_statements[statement[1]] = statement[0]
+
+    # Search for overlapping sub trees
+    removed_keys = set()
+    for key in preference_statements.keys():
+        for key2 in preference_statements.keys():
+            if key != key2 and preference_statements[key].sentence in preference_statements[key2].sentence:
+                removed_keys.add(key)
+                removed_keys.add(key2)
+
+    # Remove overlapping subtrees
+    for key in removed_keys:
+        print("overlapping sub trees 2")
+        preference_statements.pop(key, None)
+
+    return preference_statements
 
 
 def main():
@@ -217,30 +262,13 @@ def main():
 
     # a chinese restaurant in the south part of town
 
-    # Find paths to all leaves
-    leaf_paths = find_tree_paths(final_graph)
+    preference_statements = find_preference_statements(final_graph)
 
-    # Extract variable and key leaves
-    variable_dict = get_variable_dict()
-    found_values = list()
-    found_variables = list()
-    for path in leaf_paths:
-        if path[0].sentence in VALUE_DICT.keys():
-            found_values.append(path)
-        if path[0].sentence in variable_dict.keys():
-            found_variables.append(path)
+    for key in preference_statements.keys():
+        print(key + ": " + preference_statements[key].sentence)
+    print("")
 
-    preference_statements = dict()
-    for value_path in found_values:
-        possible_values = VALUE_DICT[value_path[0].sentence]
-        if len(possible_values) == 1:
-            preference_statements[possible_values[0]] = preference_statements_helper(value_path, found_variables,
-                                                                                     possible_values, variable_dict)[0]
-        else:
-            statement = preference_statements_helper(value_path, found_variables, possible_values, variable_dict)
-            preference_statements[statement[1]] = statement[0]
 
-    print(found_values)
 
 
 if __name__ == "__main__":

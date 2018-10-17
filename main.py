@@ -190,11 +190,13 @@ def find_preference_statements_helper(value_path, found_variables, possible_valu
     for value_node in value_path:
         for variable_path in found_variables:
 
+            variable_type_name = variable_dict[variable_path[0].sentence]
+
             # Check if this variable is of the same type as the value
             if variable_dict[variable_path[0].sentence] in possible_values:
                 for variable_node in variable_path:
                     if value_node.id == variable_node.id:
-                        return [value_node, variable_dict[variable_path[0].sentence]]
+                        return value_node, variable_type_name, value_path, variable_path
     return None
 
 
@@ -267,8 +269,6 @@ def main():
     for key in preference_statements.keys():
         print(key + ": " + preference_statements[key].sentence)
     print("")
-
-
 
 
 if __name__ == "__main__":

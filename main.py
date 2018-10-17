@@ -10,7 +10,7 @@ DEFAULT_DISTANCE = 999999999999999999999999
 MATCH_REGEX = r'(\w+|\(.+\))(\/|\\)(\(.+\)|\w+)|(\w+)'
 
 VALUE_DICT = {
-    'restaurant': ['pricerange'],
+    'restaurant': ['pricerange', 'food'],
     'food': ['food'],
     'town': ['area']
 }
@@ -184,10 +184,23 @@ def get_variable_dict():
     return variable_dict
 
 
+def preference_statements_helper(value_path, found_variables, possible_values, variable_dict):
+
+    for value_node in value_path:
+        for variable_path in found_variables:
+
+            # Check if this variable is of the same type as the value
+            if variable_dict[variable_path[0].sentence] in possible_values:
+                for variable_node in variable_path:
+                    if value_node.id == variable_node.id:
+                        return [value_node, variable_dict[variable_path[0].sentence]]
+    return None
+
+
 def main():
     types_dict = get_types_file_dict()
 
-    sentence = input('Enter senntence\n')
+    sentence = input('Enter sentence\n')
 
     sequence = transform_sentence(types_dict, sentence)
 
@@ -198,11 +211,36 @@ def main():
     if final_graph is None:
         return
 
-    final_graph.print_whole_graph(0)
+    #final_graph.print_whole_graph(0)
 
-    value = find_tree_paths(final_graph)
 
-    print(value)
+
+    # a chinese restaurant in the south part of town
+
+    # Find paths to all leaves
+    leaf_paths = find_tree_paths(final_graph)
+
+    # Extract variable and key leaves
+    variable_dict = get_variable_dict()
+    found_values = list()
+    found_variables = list()
+    for path in leaf_paths:
+        if path[0].sentence in VALUE_DICT.keys():
+            found_values.append(path)
+        if path[0].sentence in variable_dict.keys():
+            found_variables.append(path)
+
+    preference_statements = dict()
+    for value_path in found_values:
+        possible_values = VALUE_DICT[value_path[0].sentence]
+        if len(possible_values) == 1:
+            preference_statements[possible_values[0]] = preference_statements_helper(value_path, found_variables,
+                                                                                     possible_values, variable_dict)[0]
+        else:
+            statement = preference_statements_helper(value_path, found_variables, possible_values, variable_dict)
+            preference_statements[statement[1]] = statement[0]
+
+    print(found_values)
 
 
 if __name__ == "__main__":

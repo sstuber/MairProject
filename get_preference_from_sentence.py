@@ -203,8 +203,8 @@ def find_preference_statements(graph):
 
     # Extract variable and key leaves
     variable_dict = get_variable_dict()
-    found_values = list()
-    found_variables = list()
+    found_values = []
+    found_variables = []
     for path in leaf_paths:
         if path[0].sentence in VALUE_DICT.keys():
             found_values.append(path)
@@ -212,7 +212,7 @@ def find_preference_statements(graph):
             found_variables.append(path)
 
     # Find all preference statements
-    preference_statements = dict()
+    preference_statements = {}
     for value_path in found_values:
         possible_values = VALUE_DICT[value_path[0].sentence]
 
@@ -236,6 +236,26 @@ def find_preference_statements(graph):
     # Remove overlapping subtrees
     for key in removed_keys:
         preference_statements.pop(key, None)
+
+    return preference_statements
+
+
+def get_preference_from_sentence(sentence):
+    types_dict = get_types_file_dict()
+
+    sequence = transform_sentence(types_dict, sentence)
+
+    graph_array = list(map(tuple_to_graph_node, sequence))
+
+    final_graph = fold_graph_array(graph_array)
+
+    if final_graph is None:
+        return None
+
+    preference_statements = find_preference_statements(final_graph)
+
+    if len(preference_statements) == 0:
+        return None
 
     return preference_statements
 

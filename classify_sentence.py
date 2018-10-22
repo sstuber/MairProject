@@ -91,6 +91,23 @@ def main():
     ask_sentence(lstm_model)
 
 
+def get_lstm_model():
+    classification_list = get_classification_data()
+
+    shuffle(classification_list)
+
+    train_data = classification_list[0:round(len(classification_list)*0.85)]
+    test_data = classification_list[round(len(classification_list)*0.85):len(classification_list)]
+
+    classification_dict_object = ClassificationDictionary()
+    numbered_classification_train_data = number_train_data(classification_dict_object, train_data)
+    numbered_classification_test_data = number_test_data(classification_dict_object, test_data)
+
+    lstm_model = LstmModel(numbered_classification_train_data,
+                           numbered_classification_test_data, classification_dict_object)
+
+    return lstm_model
+
 def ask_sentence(lstm):
     sentence = input("Enter sentence \n")
     print(f'speech act label: {lstm.predict_sentence(sentence)}\n')

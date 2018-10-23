@@ -21,6 +21,8 @@ def do_conversation_step(user_model: UserModel, lstm_model):
         if user_preferences is None:
             # TODO use whole sentence as preference
             print('sentence was not parsed')
+            do_conversation_step(user_model, lstm_model)
+            return
 
         # TODO actually put found preferences in user model
         for key, value in user_preferences.items():

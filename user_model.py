@@ -7,6 +7,23 @@ class Preferences(Enum):
     PriceRange = 'pricerange'
 
 
+class Requestables(Enum):
+    Address = 'addr',
+    Area = 'area',
+    Food = 'food',
+    Phone = 'phone',
+    PriceRange = 'pricerange',
+    PostCode = 'postcode',
+    Signature = 'signature',
+    Name = 'name'
+
+
+class ConverstationSates(Enum):
+    Information = 'information'
+    SuggestRestaurant = 'suggestion'
+    RestaurantInformation = 'reqinformation'
+
+
 class UserModel:
 
     def __init__(self):
@@ -17,4 +34,5 @@ class UserModel:
             Preferences.PriceRange: None
         }
 
+        self.current_state: ConverstationSates = ConverstationSates.Information
 

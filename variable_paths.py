@@ -8,7 +8,7 @@ class VariablePath:
     # return word, requestable
     def get_word_requestable(self):
         variable_name = self.variable_path[0].sentence
-        requestable = Requestables[self.variable_type_name]
+        requestable = Requestables(self.variable_type_name)
         return variable_name, requestable
 
     def print_variable_path(self):

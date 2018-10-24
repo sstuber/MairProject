@@ -30,26 +30,32 @@ class StateHandler:
         return True
 
     def do_action(self, speech_act, sentence):
-        return
+        stateactions = state_actions
+        return state_actions[self.current_state][speech_act](state_handler=self, user_input=sentence)
 
     # paramaters should incluse information form do aciton
     def generate_response(self, speech_act):
+        # TODO change to function that depends on the user_state
+        print(state_response[self.current_state][speech_act])
         print(f'response generated for: {speech_act}')
 
     # change current state variable based on speech_act
     def change_state(self, speech_act):
-        return
+        return state_change[self.current_state][speech_act](state_handler=self)
 
     # general Loop
     def handle_action(self, speech_act, sentence):
 
-        self.do_action(sentence, sentence)
+        self.do_action(speech_act, sentence)
         self.generate_response(speech_act)
 
         self.change_state(speech_act)
 
 
-def empty_function ():
+def empty(*arg, **dict_args):
+    print(arg)
+    print(dict_args)
+    print('empty action performed')
     return None
 
 def inform_user_model(state_handler, user_input):
@@ -68,7 +74,7 @@ def inform_user_model(state_handler, user_input):
         return
 
     # handle preference
-    requestable_list = get_requestable_from_sentence(user_preferences,state_handler.inform_to_requestable_dict)
+    requestable_list = get_requestable_from_sentence(user_input, state_handler.inform_to_requestable_dict)
 
     first_word_requestable_tuple = requestable_list[0]
 
@@ -78,143 +84,151 @@ def inform_user_model(state_handler, user_input):
 # modify user model
 state_actions = {
     ConverstationSates.Information: {
-        'ack': empty_function,
-        'affirm': empty_function,
-        'bye': empty_function,
-        'confirm': empty_function,
-        'deny': empty_function,
-        'hello': empty_function,
-        'inform': empty_function,
-        'negate': empty_function,
-        'null': empty_function,
-        'repeat': empty_function,
-        'reqalts': empty_function,
-        'reqmore': empty_function,
-        'request': empty_function,
-        'restart': empty_function,
-        'thankyou': empty_function
+        'ack': empty,
+        'affirm': empty,
+        'bye': empty,
+        'confirm': empty,
+        'deny': empty,
+        'hello': empty,
+        'inform': inform_user_model,
+        'negate': empty,
+        'null': empty,
+        'repeat': empty,
+        'reqalts': empty,
+        'reqmore': empty,
+        'request': empty,
+        'restart': empty,
+        'thankyou': empty
     },
     ConverstationSates.SuggestRestaurant: {
-        'ack': empty_function,
-        'affirm': empty_function,
-        'bye': empty_function,
-        'confirm': empty_function,
-        'deny': empty_function,
-        'hello': empty_function,
-        'inform': empty_function,
-        'negate': empty_function,
-        'null': empty_function,
-        'repeat': empty_function,
-        'reqalts': empty_function,
-        'reqmore': empty_function,
-        'request': empty_function,
-        'restart': empty_function,
-        'thankyou': empty_function
+        'ack': empty,
+        'affirm': empty,
+        'bye': empty,
+        'confirm': empty,
+        'deny': empty,
+        'hello': empty,
+        'inform': empty,
+        'negate': empty,
+        'null': empty,
+        'repeat': empty,
+        'reqalts': empty,
+        'reqmore': empty,
+        'request': empty,
+        'restart': empty,
+        'thankyou': empty
     },
     ConverstationSates.RestaurantInformation: {
-        'ack': empty_function,
-        'affirm': empty_function,
-        'bye': empty_function,
-        'confirm': empty_function,
-        'deny': empty_function,
-        'hello': empty_function,
-        'inform': empty_function,
-        'negate': empty_function,
-        'null': empty_function,
-        'repeat': empty_function,
-        'reqalts': empty_function,
-        'reqmore': empty_function,
-        'request': empty_function,
-        'restart': empty_function,
-        'thankyou': empty_function
+        'ack': empty,
+        'affirm': empty,
+        'bye': empty,
+        'confirm': empty,
+        'deny': empty,
+        'hello': empty,
+        'inform': empty,
+        'negate': empty,
+        'null': empty,
+        'repeat': empty,
+        'reqalts': empty,
+        'reqmore': empty,
+        'request': empty,
+        'restart': empty,
+        'thankyou': empty
     },
     ConverstationSates.Finished: {
-        'ack': empty_function,
-        'affirm': empty_function,
-        'bye': empty_function,
-        'confirm': empty_function,
-        'deny': empty_function,
-        'hello': empty_function,
-        'inform': empty_function,
-        'negate': empty_function,
-        'null': empty_function,
-        'repeat': empty_function,
-        'reqalts': empty_function,
-        'reqmore': empty_function,
-        'request': empty_function,
-        'restart': empty_function,
-        'thankyou': empty_function
+        'ack': empty,
+        'affirm': empty,
+        'bye': empty,
+        'confirm': empty,
+        'deny': empty,
+        'hello': empty,
+        'inform': empty,
+        'negate': empty,
+        'null': empty,
+        'repeat': empty,
+        'reqalts': empty,
+        'reqmore': empty,
+        'request': empty,
+        'restart': empty,
+        'thankyou': empty
     }
 }
 
+
+def change_state_inform_state(state_handler):
+    if state_handler.current_state == ConverstationSates.Information:
+        if state_handler.user_model.all_preferences_filled():
+
+            state_handler.current_state = ConverstationSates.SuggestRestaurant
+
+
 state_change = {
     ConverstationSates.Information: {
-        'ack': '',
-        'affirm': '',
-        'bye': '',
-        'confirm': '',
-        'deny': '',
-        'hello': '',
-        'inform': '',
-        'negate': '',
-        'null': '',
-        'repeat': '',
-        'reqalts': '',
-        'reqmore': '',
-        'request': '',
-        'restart': '',
-        'thankyou': ''
+        'ack': empty,
+        'affirm': empty,
+        'bye': empty,
+        'confirm': empty,
+        'deny': empty,
+        'hello': empty,
+        'inform': change_state_inform_state,
+        'negate': empty,
+        'null': empty,
+        'repeat': empty,
+        'reqalts': empty,
+        'reqmore': empty,
+        'request': empty,
+        'restart': empty,
+        'thankyou': empty
     },
     ConverstationSates.SuggestRestaurant: {
-        'ack': '',
-        'affirm': '',
-        'bye': '',
-        'confirm': '',
-        'deny': '',
-        'hello': '',
-        'inform': '',
-        'negate': '',
-        'null': '',
-        'repeat': '',
-        'reqalts': '',
-        'reqmore': '',
-        'request': '',
-        'restart': '',
-        'thankyou': ''
+        'ack': empty,
+        'affirm': empty,
+        'bye': empty,
+        'confirm': empty,
+        'deny': empty,
+        'hello': empty,
+        'inform': empty,
+        'negate': empty,
+        'null': empty,
+        'repeat': empty,
+        'reqalts': empty,
+        'reqmore': empty,
+        'request': empty,
+        'restart': empty,
+        'thankyou': empty
     },
     ConverstationSates.RestaurantInformation: {
-        'ack': '',
-        'affirm': '',
-        'bye': '',
-        'confirm': '',
-        'deny': '',
-        'hello': '',
-        'inform': '',
-        'negate': '',
-        'null': '',
-        'repeat': '',
-        'reqalts': '',
-        'reqmore': '',
-        'request': '',
-        'restart': '',
-        'thankyou': ''
+        'ack': empty,
+        'affirm': empty,
+        'bye': empty,
+        'confirm': empty,
+        'deny': empty,
+        'hello': empty,
+        'inform': empty,
+        'negate': empty,
+        'null': empty,
+        'repeat': empty,
+        'reqalts': empty,
+        'reqmore': empty,
+        'request': empty,
+        'restart': empty,
+        'thankyou': empty
     },
     ConverstationSates.Finished: {
-        'ack': '',
-        'affirm': '',
-        'bye': '',
-        'confirm': '',
-        'deny': '',
-        'hello': '',
-        'inform': '',
-        'negate': '',
-        'null': '',
-        'repeat': '',
-        'reqalts': '',
-        'reqmore': '',
-        'request': '',
-        'restart': '',
-        'thankyou': ''
+        'ack': empty,
+        'affirm': empty,
+        'bye': empty,
+        'confirm': empty,
+        'deny': empty,
+        'hello': empty,
+        'inform': empty,
+        'negate': empty,
+        'null': empty,
+        'repeat': empty,
+        'reqalts': empty,
+        'reqmore': empty,
+        'request': empty,
+        'restart': empty,
+        'thankyou': empty
     }
 }
 

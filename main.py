@@ -41,7 +41,7 @@ def do_conversation_step(state_handler: StateHandler):
 
 def handle_conversation_step(state_handler):
 
-    if not state_handler.continue_conversation:
+    if not state_handler.continue_conversation():
         return
 
     user_input = input('')
@@ -84,9 +84,6 @@ def get_requestable_from_sentence(sentence, requestable_dict):
 
 
 def main():
-    test = get_inform_requestable_dict()
-    result = get_requestable_from_sentence('i want a restuarant in the north parth of town', test)
-    print (result)
     lstm_model = get_lstm_model()
 
     state_handler = StateHandler(lstm_model)
@@ -95,7 +92,7 @@ def main():
 
     print('Hello what can i do for you?')
 
-    do_conversation_step(state_handler)
+    handle_conversation_step(state_handler)
 
 
 if __name__ == "__main__":

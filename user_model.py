@@ -46,6 +46,16 @@ class UserModel:
 
         return self.preferences[requestable]
 
+    def all_preferences_filled(self):
+
+        preferences_are_filled = True
+
+        for requestable, word in self.preferences.items():
+            if word is None:
+                preferences_are_filled = False
+
+        return preferences_are_filled
+
     def delete_preference(self, requestable):
 
         if requestable not in self.preferences:
@@ -68,6 +78,9 @@ class UserModel:
         if requestable not in self.preferences:
             print('invalid preference')
             return False
+
+        if self.preferences[requestable] is not None:
+            print('overwrite preference')
 
         self.preferences[requestable] = word
 

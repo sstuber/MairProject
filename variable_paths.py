@@ -1,8 +1,15 @@
 
+from user_model import Requestables
 
 class VariablePath:
     def __init__(self, variable_tuples):
         self.crossing_node, self.variable_type_name, self.value_path, self.variable_path = variable_tuples
+
+    # return word, requestable
+    def get_word_requestable(self):
+        variable_name = self.variable_path[0].sentence
+        requestable = Requestables[self.variable_type_name]
+        return variable_name, requestable
 
     def print_variable_path(self):
 

@@ -39,6 +39,16 @@ class UserModel:
             Requestables.PriceRange: None
         }
 
+    def get_missing_preference(self):
+
+        if self.preferences[Requestables.Area] is None:
+            return Requestables.Area
+
+        if self.preferences[Requestables.Food] is None:
+            return Requestables.Food
+
+        return Requestables.PriceRange
+
     def get_preference(self, requestable: Requestables):
 
         if requestable not in self.preferences:

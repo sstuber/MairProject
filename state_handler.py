@@ -1,6 +1,6 @@
 from get_preference_from_sentence import get_preference_from_sentence
 from user_model import UserModel, Requestables, ConverstationSates
-from state_helper_functions import get_inform_requestable_dict, get_requestable_from_sentence
+from state_helper_functions import get_inform_requestable_dict, get_requestable_from_sentence, RestaurantInfo
 
 
 
@@ -9,6 +9,7 @@ class StateHandler:
 
     def __init__(self, lstm_model):
         # State constants
+        self.restaurant_info = RestaurantInfo()
         self.lstm_model = lstm_model
         self.inform_to_requestable_dict = get_inform_requestable_dict()
 
@@ -22,6 +23,7 @@ class StateHandler:
         self.user_model = UserModel()
         self.current_state = ConverstationSates.Information
         self.previous_response = ''
+        self.restaurant_info.reset()
 
     def continue_conversation(self):
         if self.current_state == ConverstationSates.Finished:

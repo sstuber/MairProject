@@ -1,5 +1,6 @@
 from enum import Enum
 
+ANY_PREFERENCE_CONSTANT = 'ANY'
 
 class Preferences(Enum):
     Area = 'area'

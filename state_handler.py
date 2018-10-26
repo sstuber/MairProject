@@ -14,12 +14,14 @@ class StateHandler:
         self.inform_to_requestable_dict = get_inform_requestable_dict()
 
         # State variables
+        self.selected_restaurand = None
         self.previous_response = None
         self.current_state: ConverstationSates = None
         self.user_model: UserModel = None
         self.reset_state()
 
     def reset_state(self):
+        self.selected_restaurand = None
         self.user_model = UserModel()
         self.current_state = ConverstationSates.Information
         self.previous_response = ''
@@ -88,6 +90,13 @@ def inform_user_model(state_handler, user_input):
     return { 'set_preference':  [first_word_requestable_tuple]}
 
 
+def affirm_suggested_restaurant(state_handler, user_input, **kwargs):
+
+    state_handler.selected_restaurant = state_handler.restaurant_info.selected_restaurant
+
+    return {'restaurant_confirmed': True}
+
+
 # all functions must return a dict or None
 # modify user model
 state_actions = {
@@ -109,8 +118,8 @@ state_actions = {
         'thankyou': empty
     },
     ConverstationSates.SuggestRestaurant: {
-        'ack': empty,
-        'affirm': empty,
+        'ack': affirm_suggested_restaurant,
+        'affirm': affirm_suggested_restaurant,
         'bye': empty,
         'confirm': empty,
         'deny': empty,
@@ -173,6 +182,17 @@ def change_state_inform_state(state_handler, extra_data = None, **kwargs):
             state_handler.current_state = ConverstationSates.SuggestRestaurant
             extra_data['state_changed'] = True
 
+
+    return extra_data
+
+def change_state_affirm_suggested_restaurant(state_handler, extra_data = None, **kwargs):
+
+    if extra_data is None:
+        extra_data = {}
+
+    if state_handler.current_state == ConverstationSates.SuggestRestaurant:
+        if extra_data['restaurant_confirmed']:
+            state_handler.current_state = ConverstationSates.RestaurantInformation
 
     return extra_data
 
@@ -282,7 +302,7 @@ def inform_setting_user_preference(state_handler, extra_data=None, **kwargs):
 
     if 'state_changed' in extra_data:
         suggested_restaurant = state_handler.restaurant_info.get_suggestions()
-        restaurant_name = suggested_restaurant['name']
+        restaurant_name = suggested_restaurant['restaurantname']
 
         add_order = state_handler.user_model.add_order
 
@@ -291,6 +311,22 @@ def inform_setting_user_preference(state_handler, extra_data=None, **kwargs):
         suggested_restaurant_str = f'According to your preferences i suggest this restaurant {restaurant_name}'
         print(suggested_restaurant_str)
         state_handler.previous_response = suggested_restaurant_str
+
+def affirm_notify_restaurant_selected(state_handler, extra_data=None, **kwargs):
+
+    if extra_data is None:
+        extra_data = {}
+
+    if 'restaurant_confirmed' in extra_data:
+
+        selected_restaurant = state_handler.selected_restaurant
+        selected_restaurant_name = selected_restaurant['restaurantname']
+
+
+        print(f'The selected restaurant is {selected_restaurant_name}')
+        print('What for information would you like about this restaurant?')
+
+
 
 
 state_response = {
@@ -329,8 +365,8 @@ state_response = {
         'thankyou': empty
     },
     ConverstationSates.RestaurantInformation: {
-        'ack': empty,
-        'affirm': empty,
+        'ack': affirm_notify_restaurant_selected,
+        'affirm': affirm_notify_restaurant_selected,
         'bye': empty,
         'confirm': empty,
         'deny': empty,

@@ -1,6 +1,6 @@
 
 from get_preference_from_sentence import get_preference_from_sentence
-from classify_sentence import get_lstm_model
+from classify_sentence import get_lstm_model, cross_validation
 from user_model import UserModel
 
 
@@ -40,15 +40,26 @@ def do_conversation_step(user_model: UserModel, lstm_model):
 
 def main():
 
-    lstm_model = get_lstm_model()
+    cv_output = cross_validation()
 
-    user_model = UserModel()
+    for value in cv_output:
+        print(value)
+
+
+    #lstm_model = get_lstm_model()
+
+    #print(lstm_model.get_accuracy())
+    #user_model = UserModel()
 
     # start up conversation
 
-    print('Hello what can i do for you?\n')
+    #print('Hello what can i do for you?\n')
 
-    do_conversation_step(user_model, lstm_model)
+    #do_conversation_step(user_model, lstm_model)
+
+    # CV
+
+
 
 
 if __name__ == "__main__":

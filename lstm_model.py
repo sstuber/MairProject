@@ -5,13 +5,20 @@ from numpy import array
 import re
 
 UTTERANCE_LIST_LENGTH = 10
-EPOCHS = 5
+EPOCHS = 4
+EMBEDDING_DIMENSIONS = 64
+LSTM_UNITS = 64
 
 
 class LstmModel:
     def __init__(self, numbered_classification_train_data, numbered_classification_test_data,
-                 classification_dict_object):
+                 classification_dict_object, utterance_length, embedding_dimensions, lstm_units):
         self.classification_dict_object = classification_dict_object
+
+        global UTTERANCE_LIST_LENGTH, EMBEDDING_DIMENSIONS, LSTM_UNITS
+        UTTERANCE_LIST_LENGTH = utterance_length
+        EMBEDDING_DIMENSIONS = embedding_dimensions
+        LSTM_UNITS = lstm_units
 
         self.train_data = numbered_classification_train_data
         self.test_data = numbered_classification_test_data
@@ -34,8 +41,8 @@ class LstmModel:
         input_tensor = Input(shape=train_values[0].shape)
 
         # Create layers
-        embedding_layer = Embedding(vocabulary_size, output_dim=64, mask_zero=True)(input_tensor)
-        hidden_layer = LSTM(units=64, activation='relu')(embedding_layer)
+        embedding_layer = Embedding(vocabulary_size, output_dim=EMBEDDING_DIMENSIONS, mask_zero=True)(input_tensor)
+        hidden_layer = LSTM(units=LSTM_UNITS, activation='relu')(embedding_layer)
         output_layer = Dense(units=15, activation='softmax')(hidden_layer)
 
         # Create model
@@ -45,7 +52,7 @@ class LstmModel:
         # Train model
         self.model.fit(train_values, train_labels, epochs=EPOCHS)
 
-    def print_accuracy(self):
+    def get_accuracy(self):
         # Split into input and output for the neural network
         test_values = []
         test_labels = []
@@ -65,7 +72,7 @@ class LstmModel:
         for i in range(len(test_labels)):
             if predicted_labels[i] == test_labels[i]:
                 correct += 1
-        print(correct / len(test_labels))
+        return correct / len(test_labels)
 
     # given a numbered sentence it will return the name of the speech_act
     def predict_sentence(self, sentence):

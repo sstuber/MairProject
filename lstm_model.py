@@ -4,7 +4,7 @@ from keras.models import Model, Sequential
 from numpy import array
 import re
 
-UTTERANCE_LIST_LENGTH = 10
+UTTERANCE_LIST_LENGTH = 6
 EPOCHS = 5
 
 
@@ -34,7 +34,7 @@ class LstmModel:
         input_tensor = Input(shape=train_values[0].shape)
 
         # Create layers
-        embedding_layer = Embedding(vocabulary_size, output_dim=64, mask_zero=True)(input_tensor)
+        embedding_layer = Embedding(vocabulary_size, output_dim=256, mask_zero=True)(input_tensor)
         hidden_layer = LSTM(units=64, activation='relu')(embedding_layer)
         output_layer = Dense(units=15, activation='softmax')(hidden_layer)
 

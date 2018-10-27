@@ -41,8 +41,8 @@ def do_conversation_step(state_handler: StateHandler):
 
 def handle_conversation_step(state_handler):
 
-    if not state_handler.continue_conversation():
-        return
+    #if not state_handler.continue_conversation():
+    #    return
 
     user_input = input('')
 
@@ -53,7 +53,6 @@ def handle_conversation_step(state_handler):
     state_handler.handle_action(speech_act, user_input)
 
     handle_conversation_step(state_handler)
-
 
 
 def get_inform_requestable_dict():
@@ -90,7 +89,7 @@ def main():
 
     # start up conversation
 
-    print('Hello what can i do for you?')
+    print('Hello, what can I do for you?')
 
     handle_conversation_step(state_handler)
 

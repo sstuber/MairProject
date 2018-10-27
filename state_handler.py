@@ -56,12 +56,12 @@ class StateHandler:
         self.generate_response(speech_act, change_data)
 
 
-
 def empty(*arg, **dict_args):
     print(arg)
     print(dict_args)
     print('empty action performed')
     return None
+
 
 def inform_user_model(state_handler, user_input):
     user_preferences = get_preference_from_sentence(user_input)
@@ -97,16 +97,44 @@ def affirm_suggested_restaurant(state_handler, user_input, **kwargs):
     return {'restaurant_confirmed': True}
 
 
+def no_action(state_handler, user_input):
+    return {}
+
+
+def request_information(state_handler, user_input):
+    request_dict = {"phone" : "phone",
+                    "number": "phone",
+                    "address": "addr",
+                    "where": "addr",
+                    "postcode": "postcode"}
+
+    requestable_list = get_requestable_from_sentence(user_input, request_dict)
+
+    information_requests = set()
+    for (_, request) in requestable_list:
+        information_requests.add(request)
+
+    if state_handler.current_state == ConverstationSates.SuggestRestaurant:
+        state_handler.selected_restaurant = state_handler.restaurant_info.selected_restaurant
+
+    return {"requests" : information_requests, 'restaurant_confirmed': True}
+
+
+def restart_conversation(state_handler, user_input):
+    state_handler.reset_state()
+
+    return {}
+
 # all functions must return a dict or None
 # modify user model
 state_actions = {
     ConverstationSates.Information: {
         'ack': empty,
         'affirm': empty,
-        'bye': empty,
+        'bye': no_action,
         'confirm': empty,
         'deny': empty,
-        'hello': empty,
+        'hello': no_action,
         'inform': inform_user_model,
         'negate': empty,
         'null': empty,
@@ -114,59 +142,59 @@ state_actions = {
         'reqalts': empty,
         'reqmore': empty,
         'request': empty,
-        'restart': empty,
-        'thankyou': empty
+        'restart': restart_conversation,
+        'thankyou': no_action
     },
     ConverstationSates.SuggestRestaurant: {
         'ack': affirm_suggested_restaurant,
         'affirm': affirm_suggested_restaurant,
-        'bye': empty,
+        'bye': no_action,
         'confirm': empty,
         'deny': empty,
-        'hello': empty,
+        'hello': no_action,
         'inform': empty,
         'negate': empty,
         'null': empty,
         'repeat': empty,
         'reqalts': empty,
         'reqmore': empty,
-        'request': empty,
-        'restart': empty,
-        'thankyou': empty
+        'request': request_information,
+        'restart': restart_conversation,
+        'thankyou': no_action
     },
     ConverstationSates.RestaurantInformation: {
         'ack': empty,
         'affirm': empty,
-        'bye': empty,
+        'bye': no_action,
         'confirm': empty,
         'deny': empty,
-        'hello': empty,
+        'hello': no_action,
         'inform': empty,
         'negate': empty,
         'null': empty,
         'repeat': empty,
         'reqalts': empty,
         'reqmore': empty,
-        'request': empty,
-        'restart': empty,
-        'thankyou': empty
+        'request': request_information,
+        'restart': restart_conversation,
+        'thankyou': no_action
     },
     ConverstationSates.Finished: {
-        'ack': empty,
-        'affirm': empty,
-        'bye': empty,
-        'confirm': empty,
-        'deny': empty,
-        'hello': empty,
-        'inform': empty,
-        'negate': empty,
-        'null': empty,
-        'repeat': empty,
-        'reqalts': empty,
-        'reqmore': empty,
-        'request': empty,
-        'restart': empty,
-        'thankyou': empty
+        'ack': no_action,
+        'affirm': no_action,
+        'bye': no_action,
+        'confirm': no_action,
+        'deny': no_action,
+        'hello': no_action,
+        'inform': no_action,
+        'negate': no_action,
+        'null': no_action,
+        'repeat': no_action,
+        'reqalts': no_action,
+        'reqmore': no_action,
+        'request': no_action,
+        'restart': restart_conversation,
+        'thankyou': no_action
     }
 }
 
@@ -182,8 +210,8 @@ def change_state_inform_state(state_handler, extra_data = None, **kwargs):
             state_handler.current_state = ConverstationSates.SuggestRestaurant
             extra_data['state_changed'] = True
 
-
     return extra_data
+
 
 def change_state_affirm_suggested_restaurant(state_handler, extra_data = None, **kwargs):
 
@@ -197,14 +225,36 @@ def change_state_affirm_suggested_restaurant(state_handler, extra_data = None, *
     return extra_data
 
 
+def no_state_change(state_handler, extra_data):
+    return {}
+
+
+def change_end_conversation(state_handler, extra_data = None):
+    previous_state = state_handler.current_state
+    state_handler.current_state = ConverstationSates.Finished
+
+    return {"previous_state" : previous_state}
+
+
+def change_request(state_handler, extra_data = None):
+    if extra_data is None:
+        extra_data = {}
+
+    if state_handler.current_state == ConverstationSates.SuggestRestaurant:
+        state_handler.current_state = ConverstationSates.RestaurantInformation
+
+    return extra_data
+
+
+# - should be impossible to reach
 state_change = {
     ConverstationSates.Information: {
         'ack': empty,
         'affirm': empty,
-        'bye': empty,
+        'bye': change_end_conversation,
         'confirm': empty,
         'deny': empty,
-        'hello': empty,
+        'hello': no_state_change,
         'inform': change_state_inform_state,
         'negate': empty,
         'null': empty,
@@ -212,59 +262,59 @@ state_change = {
         'reqalts': empty,
         'reqmore': empty,
         'request': empty,
-        'restart': empty,
-        'thankyou': empty
+        'restart': no_state_change,
+        'thankyou': change_end_conversation
     },
     ConverstationSates.SuggestRestaurant: {
-        'ack': empty,
-        'affirm': empty,
-        'bye': empty,
+        'ack': change_state_affirm_suggested_restaurant,
+        'affirm': change_state_affirm_suggested_restaurant,
+        'bye': change_end_conversation,
         'confirm': empty,
         'deny': empty,
-        'hello': empty,
+        'hello': no_state_change,
         'inform': empty,
         'negate': empty,
         'null': empty,
         'repeat': empty,
         'reqalts': empty,
         'reqmore': empty,
-        'request': empty,
-        'restart': empty,
-        'thankyou': empty
+        'request': change_request,
+        'restart': no_state_change,
+        'thankyou': change_end_conversation
     },
     ConverstationSates.RestaurantInformation: {
         'ack': empty,
         'affirm': empty,
-        'bye': empty,
+        'bye': change_end_conversation,
         'confirm': empty,
         'deny': empty,
-        'hello': empty,
+        'hello': no_state_change,
         'inform': empty,
         'negate': empty,
         'null': empty,
         'repeat': empty,
         'reqalts': empty,
         'reqmore': empty,
-        'request': empty,
-        'restart': empty,
-        'thankyou': empty
+        'request': change_request,
+        'restart': no_state_change,
+        'thankyou': change_end_conversation
     },
     ConverstationSates.Finished: {
-        'ack': empty,
-        'affirm': empty,
-        'bye': empty,
-        'confirm': empty,
-        'deny': empty,
-        'hello': empty,
-        'inform': empty,
-        'negate': empty,
-        'null': empty,
-        'repeat': empty,
-        'reqalts': empty,
-        'reqmore': empty,
-        'request': empty,
-        'restart': empty,
-        'thankyou': empty
+        'ack': no_state_change,
+        'affirm': no_state_change,
+        'bye': change_end_conversation,
+        'confirm': no_state_change,
+        'deny': no_state_change,
+        'hello': no_state_change,
+        'inform': no_state_change,
+        'negate': no_state_change,
+        'null': no_state_change,
+        'repeat': no_state_change,
+        'reqalts': no_state_change,
+        'reqmore': no_state_change,
+        'request': no_state_change,
+        'restart': empty,   # -
+        'thankyou': change_end_conversation
     }
 }
 
@@ -312,6 +362,7 @@ def inform_setting_user_preference(state_handler, extra_data=None, **kwargs):
         print(suggested_restaurant_str)
         state_handler.previous_response = suggested_restaurant_str
 
+
 def affirm_notify_restaurant_selected(state_handler, extra_data=None, **kwargs):
 
     if extra_data is None:
@@ -322,21 +373,86 @@ def affirm_notify_restaurant_selected(state_handler, extra_data=None, **kwargs):
         selected_restaurant = state_handler.selected_restaurant
         selected_restaurant_name = selected_restaurant['restaurantname']
 
-
-        print(f'The selected restaurant is {selected_restaurant_name}')
-        print('What for information would you like about this restaurant?')
-
-
+        response_str = f'The selected restaurant is {selected_restaurant_name}. What for information would you like about this restaurant?'
+        state_handler.previous_response = response_str
+        print(response_str)
 
 
+def hello_information(state_handler, extra_data=None, **kwargs):
+    next_preference = state_handler.user_model.get_missing_preference()
+    next_preference_str = f'Hello! What would you like for {next_preference.value}'
+
+    state_handler.previous_response = next_preference_str
+    print(next_preference_str)
+
+
+def hello_other(state_handler, extra_data=None, **kwargs):
+    suggested_restaurant = state_handler.restaurant_info.get_suggestions()
+    restaurant_name = suggested_restaurant['restaurantname']
+
+    suggested_restaurant_str = f'Hello! What for information would you like about {restaurant_name}?'
+
+    state_handler.previous_response = suggested_restaurant_str
+    print(suggested_restaurant_str)
+
+
+def end_conversation(state_handler, extra_data=None, **kwargs):
+    if extra_data is None:
+        extra_data = {}
+
+    if extra_data['previous_state'] == ConverstationSates.RestaurantInformation:
+        response_str = "Goodbye, enjoy your meal."
+    elif extra_data['previous_state'] == ConverstationSates.Finished:
+        print("The conversation has finished. Start over if you would like to find another restaurant.")
+        return
+    else:
+        response_str = "Goodbye."
+
+    state_handler.previous_response = response_str
+    print(response_str)
+
+
+def give_restaurant_information(state_handler, extra_data=None, **kwargs):
+    if extra_data is None:
+        print("Sorry, I did not understand your request.")
+    else:
+        selected_restaurant = state_handler.selected_restaurant
+        response_str = selected_restaurant['restaurantname'] + "'s "
+
+        for request in extra_data['requests']:
+            if request == 'phone':
+                response_str += "phone number"
+            elif request == 'addr':
+                response_str += "address"
+            elif request == 'postcode':
+                response_str += "postcode"
+
+            response_str += " is " + selected_restaurant[request] + " and its "
+
+        response_str = response_str[:-9]
+        response_str += "."
+
+        state_handler.previous_response = response_str
+        print(response_str)
+
+
+def response_restart(state_handler, extra_data=None, **kwargs):
+    print("Hello, what can I do for you?")
+
+
+def conversation_finished(state_handler, extra_data=None, **kwargs):
+    print("The conversation has finished. Start over if you would like to find another restaurant.")
+
+
+# - should be impossible to reach
 state_response = {
     ConverstationSates.Information: {
         'ack': empty,
         'affirm': empty,
-        'bye': empty,
+        'bye': empty,       # -
         'confirm': empty,
         'deny': empty,
-        'hello': empty,
+        'hello': hello_information,
         'inform': inform_notify_user_of_preference,
         'negate': empty,
         'null': empty,
@@ -344,58 +460,58 @@ state_response = {
         'reqalts': empty,
         'reqmore': empty,
         'request': empty,
-        'restart': empty,
-        'thankyou': empty
+        'restart': response_restart,
+        'thankyou': empty   # -
     },
     ConverstationSates.SuggestRestaurant: {
-        'ack': empty,
-        'affirm': empty,
-        'bye': empty,
+        'ack': affirm_notify_restaurant_selected,
+        'affirm': affirm_notify_restaurant_selected,
+        'bye': empty,       # -
         'confirm': empty,
         'deny': empty,
-        'hello': empty,
+        'hello': hello_other,
         'inform': inform_setting_user_preference,
         'negate': empty,
         'null': empty,
         'repeat': empty,
         'reqalts': empty,
         'reqmore': empty,
-        'request': empty,
-        'restart': empty,
-        'thankyou': empty
+        'request': empty,   # -
+        'restart': empty,   # -
+        'thankyou': empty   # -
     },
     ConverstationSates.RestaurantInformation: {
         'ack': affirm_notify_restaurant_selected,
         'affirm': affirm_notify_restaurant_selected,
-        'bye': empty,
+        'bye': empty,       # -
         'confirm': empty,
         'deny': empty,
-        'hello': empty,
+        'hello': hello_other,
         'inform': empty,
         'negate': empty,
         'null': empty,
         'repeat': empty,
         'reqalts': empty,
         'reqmore': empty,
-        'request': empty,
-        'restart': empty,
-        'thankyou': empty
+        'request': give_restaurant_information,
+        'restart': empty,   # -
+        'thankyou': empty   # -
     },
     ConverstationSates.Finished: {
-        'ack': empty,
-        'affirm': empty,
-        'bye': empty,
-        'confirm': empty,
-        'deny': empty,
-        'hello': empty,
-        'inform': empty,
-        'negate': empty,
-        'null': empty,
-        'repeat': empty,
-        'reqalts': empty,
-        'reqmore': empty,
-        'request': empty,
-        'restart': empty,
-        'thankyou': empty
+        'ack': conversation_finished,
+        'affirm': conversation_finished,
+        'bye': end_conversation,
+        'confirm': conversation_finished,
+        'deny': conversation_finished,
+        'hello': conversation_finished,
+        'inform': conversation_finished,
+        'negate': conversation_finished,
+        'null': conversation_finished,
+        'repeat': conversation_finished,
+        'reqalts': conversation_finished,
+        'reqmore': conversation_finished,
+        'request': conversation_finished,
+        'restart': empty,   # -
+        'thankyou': end_conversation
     }
 }

@@ -83,6 +83,9 @@ def inform_user_model(state_handler, user_input):
     # handle preference
     requestable_list = get_requestable_from_sentence(user_input, state_handler.inform_to_requestable_dict)
 
+    if len(requestable_list) == 0:
+        return {'set_preference': []}
+
     first_word_requestable_tuple = requestable_list[0]
 
     state_handler.user_model.add_preference(first_word_requestable_tuple)
@@ -399,6 +402,15 @@ def hello_other(state_handler, extra_data=None, **kwargs):
     state_handler.previous_response = suggested_restaurant_str
     print(suggested_restaurant_str)
 
+def hello_general(state_handler, extra_data =None, **kwargs):
+    previous_response = state_handler.previous_response
+
+    print(f'Hello! {previous_response}')
+
+def null_general(state_handler, extra_data =None, **kwargs):
+    previous_response = state_handler.previous_response
+
+    print(f'I did not understand you... {previous_response}')
 
 def end_conversation(state_handler, extra_data=None, **kwargs):
     if extra_data is None:
@@ -465,10 +477,10 @@ state_response = {
         'bye': empty,       # -
         'confirm': empty,
         'deny': empty,
-        'hello': hello_information,
+        'hello': hello_general,
         'inform': inform_notify_user_of_preference,
         'negate': empty,
-        'null': empty,
+        'null': null_general,
         'repeat': empty,
         'reqalts': empty,
         'reqmore': empty,
@@ -482,10 +494,10 @@ state_response = {
         'bye': empty,       # -
         'confirm': empty,
         'deny': empty,
-        'hello': hello_other,
+        'hello': hello_general,
         'inform': inform_setting_user_preference,
         'negate': empty,
-        'null': empty,
+        'null': null_general,
         'repeat': empty,
         'reqalts': empty,
         'reqmore': empty,
@@ -499,10 +511,10 @@ state_response = {
         'bye': empty,       # -
         'confirm': empty,
         'deny': empty,
-        'hello': hello_other,
+        'hello': hello_general,
         'inform': empty,
         'negate': empty,
-        'null': empty,
+        'null': null_general,
         'repeat': empty,
         'reqalts': empty,
         'reqmore': empty,

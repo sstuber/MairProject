@@ -106,7 +106,11 @@ def request_information(state_handler, user_input):
                     "number": "phone",
                     "address": "addr",
                     "where": "addr",
-                    "postcode": "postcode"}
+                    "postcode": "postcode",
+                    'area': 'area',
+                    'food': 'food',
+                    'price range': 'pricerange',
+                    'name': 'restaurantname'}
 
     requestable_list = get_requestable_from_sentence(user_input, request_dict)
 
@@ -426,6 +430,15 @@ def give_restaurant_information(state_handler, extra_data=None, **kwargs):
                 response_str += "address"
             elif request == 'postcode':
                 response_str += "postcode"
+            elif request == 'food':
+                response_str += 'food'
+            elif request == 'pricerange':
+                response_str += 'price range'
+            elif request == 'area':
+                response_str += 'area'
+            elif request == 'restaurantname':
+                response_str += 'name'
+
 
             response_str += " is " + selected_restaurant[request] + " and its "
 

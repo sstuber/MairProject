@@ -381,7 +381,14 @@ def inform_notify_user_of_preference(state_handler,extra_data = None, **kwargs):
 
 
 def print_suggest_restaurant(state_handler):
-    suggested_restaurant = state_handler.restaurant_info.get_suggestions()
+
+    food_pref = state_handler.user_model.get_preference(Requestables.Food)
+    price_pref = state_handler.user_model.get_preference(Requestables.PriceRange)
+    area_pref = state_handler.user_model.get_preference(Requestables.Area)
+
+    suggested_restaurant = state_handler.restaurant_info.get_suggestions(
+        food_preference=food_pref, pricerange_preference=price_pref, area_preference=area_pref
+    )
 
     if suggested_restaurant is None:
         no_restaurant_str = 'There is no restaurant with your preferences. Try to change your preferences'

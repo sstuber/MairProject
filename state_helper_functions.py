@@ -84,10 +84,7 @@ class RestaurantInfo:
                     continue
 
             if pricerange_preference is not None:
-                print(restuarant_dict['pricerange'])
-                print(pricerange_preference)
                 if restuarant_dict['pricerange'] != pricerange_preference and pricerange_preference != ANY_PREFERENCE_CONSTANT:
-                    print('skipped')
                     continue
 
             if area_preference is not None:

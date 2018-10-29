@@ -82,6 +82,13 @@ class UserModel:
         self.add_order = list(filter(lambda x: x != (word, requestable), self.add_order))
         self.preferences[requestable] = None
 
+
+    def replace_preference(self,word_requestable_tuple):
+        self.delete_preference(word_requestable_tuple[1])
+
+        self.add_preference(word_requestable_tuple)
+
+
     def add_preference(self, word_requestable_tuple):
 
         word, requestable = word_requestable_tuple

@@ -63,6 +63,20 @@ def empty(*arg, **dict_args):
     return None
 
 
+def set_user_preference_from_simple_sentence(state_handler, user_input):
+    # handle preference
+    requestable_list = get_requestable_from_sentence(user_input, state_handler.inform_to_requestable_dict)
+
+    if len(requestable_list) == 0:
+        return {'set_preference': []}
+
+    first_word_requestable_tuple = requestable_list[0]
+
+    state_handler.user_model.replace_preference(first_word_requestable_tuple)
+
+    return {'set_preference': [first_word_requestable_tuple]}
+
+
 def inform_user_model(state_handler, user_input):
     user_preferences = get_preference_from_sentence(user_input)
 
@@ -78,19 +92,9 @@ def inform_user_model(state_handler, user_input):
             # modify user preference
             state_handler.user_model.add_preference(word_requestable_tuple)
 
-        return { 'set_preference':  word_requestable_tuple_list}
+        return {'set_preference':  word_requestable_tuple_list}
 
-    # handle preference
-    requestable_list = get_requestable_from_sentence(user_input, state_handler.inform_to_requestable_dict)
-
-    if len(requestable_list) == 0:
-        return {'set_preference': []}
-
-    first_word_requestable_tuple = requestable_list[0]
-
-    state_handler.user_model.add_preference(first_word_requestable_tuple)
-
-    return { 'set_preference':  [first_word_requestable_tuple]}
+    return set_user_preference_from_simple_sentence(state_handler, user_input)
 
 
 def affirm_suggested_restaurant(state_handler, user_input, **kwargs):
@@ -132,6 +136,16 @@ def restart_conversation(state_handler, user_input):
 
     return {}
 
+
+def reqalt_update_information(state_handler, user_input, **kwargs):
+    extra_data = set_user_preference_from_simple_sentence(state_handler, user_input)
+
+    if len(extra_data['set_preference']) > 0:
+        state_handler.restaurant_info.reset()
+
+    return extra_data
+
+
 # all functions must return a dict or None
 # modify user model
 state_actions = {
@@ -146,7 +160,7 @@ state_actions = {
         'negate': empty,
         'null': empty,
         'repeat': empty,
-        'reqalts': empty,
+        'reqalts': reqalt_update_information,
         'reqmore': empty,
         'request': empty,
         'restart': restart_conversation,
@@ -163,7 +177,7 @@ state_actions = {
         'negate': empty,
         'null': empty,
         'repeat': empty,
-        'reqalts': empty,
+        'reqalts': reqalt_update_information,
         'reqmore': empty,
         'request': request_information,
         'restart': restart_conversation,
@@ -180,7 +194,7 @@ state_actions = {
         'negate': empty,
         'null': empty,
         'repeat': empty,
-        'reqalts': empty,
+        'reqalts': reqalt_update_information,
         'reqmore': empty,
         'request': request_information,
         'restart': restart_conversation,
@@ -206,16 +220,19 @@ state_actions = {
 }
 
 
+def check_preference_and_suggest_restaurant(state_handler, extra_data):
+    if state_handler.user_model.all_preferences_filled():
+        state_handler.current_state = ConverstationSates.SuggestRestaurant
+        extra_data['state_changed'] = True
+
+
 def change_state_inform_state(state_handler, extra_data = None, **kwargs):
 
     if extra_data is None:
         extra_data = {}
 
     if state_handler.current_state == ConverstationSates.Information:
-        if state_handler.user_model.all_preferences_filled():
-
-            state_handler.current_state = ConverstationSates.SuggestRestaurant
-            extra_data['state_changed'] = True
+        check_preference_and_suggest_restaurant(state_handler, extra_data)
 
     return extra_data
 
@@ -229,6 +246,13 @@ def change_state_affirm_suggested_restaurant(state_handler, extra_data = None, *
         if extra_data['restaurant_confirmed']:
             state_handler.current_state = ConverstationSates.RestaurantInformation
 
+    return extra_data
+
+
+# if inform and not everything filled we stay in inform
+# if any other state changing 1 preference will keep everything filled thus we can suggest a restaurant anyway
+def change_state_reqalt_general(state_handler, extra_data = None, **kwargs):
+    check_preference_and_suggest_restaurant(state_handler, extra_data)
     return extra_data
 
 
@@ -266,7 +290,7 @@ state_change = {
         'negate': empty,
         'null': empty,
         'repeat': empty,
-        'reqalts': empty,
+        'reqalts': change_state_reqalt_general,
         'reqmore': empty,
         'request': empty,
         'restart': no_state_change,
@@ -283,7 +307,7 @@ state_change = {
         'negate': empty,
         'null': empty,
         'repeat': empty,
-        'reqalts': empty,
+        'reqalts': change_state_reqalt_general,
         'reqmore': empty,
         'request': change_request,
         'restart': no_state_change,
@@ -300,7 +324,7 @@ state_change = {
         'negate': empty,
         'null': empty,
         'repeat': empty,
-        'reqalts': empty,
+        'reqalts': change_state_reqalt_general,
         'reqmore': empty,
         'request': change_request,
         'restart': no_state_change,
@@ -326,30 +350,55 @@ state_change = {
 }
 
 
+def print_user_preferences(state_handler,extra_data = None):
+    changed_preferences_string = 'Your preferences are '
+    changed_preferences = extra_data['set_preference']
+
+    for i in range(len(changed_preferences)):
+        preference = changed_preferences[i]
+        changed_preferences_string = f'{changed_preferences_string}{preference[1].value}: {preference[0]}'
+
+        if i < len(changed_preferences) - 2:
+            changed_preferences_string = f'{changed_preferences_string}, '
+        elif i < len(changed_preferences) - 1:
+            changed_preferences_string = f'{changed_preferences_string} and '
+
+    print(changed_preferences_string)
+
+    next_preference = state_handler.user_model.get_missing_preference()
+    next_preference_str = f'What would you like for {next_preference.value}'
+
+    state_handler.previous_response = next_preference_str
+    print(next_preference_str)
+
+
 def inform_notify_user_of_preference(state_handler,extra_data = None, **kwargs):
     if extra_data is None:
         extra_data = {}
 
     if 'set_preference' in extra_data:
-        changed_preferences_string = 'Your preferences are '
-        changed_preferences = extra_data['set_preference']
+        print_user_preferences(state_handler,extra_data)
 
-        for i in range(len(changed_preferences)):
-            preference = changed_preferences[i]
-            changed_preferences_string = f'{changed_preferences_string}{preference[1].value}: {preference[0]}'
 
-            if i < len(changed_preferences) - 2:
-                changed_preferences_string = f'{changed_preferences_string}, '
-            elif i < len(changed_preferences) - 1:
-                changed_preferences_string = f'{changed_preferences_string} and '
+def print_suggest_restaurant(state_handler):
+    suggested_restaurant = state_handler.restaurant_info.get_suggestions()
 
-        print(changed_preferences_string)
+    if suggested_restaurant is None:
+        no_restaurant_str = 'There is no restaurant with your preferences. Try to change your preferences'
+        state_handler.previous_response = no_restaurant_str
+        print(no_restaurant_str)
+        return
 
-        next_preference = state_handler.user_model.get_missing_preference()
-        next_preference_str = f'What would you like for {next_preference.value}'
+    restaurant_name = suggested_restaurant['restaurantname']
 
-        state_handler.previous_response = next_preference_str
-        print(next_preference_str)
+    add_order = state_handler.user_model.add_order
+
+    print(
+        f'Your preferences are {add_order[0][1].value} {add_order[0][0]}, {add_order[1][1].value} {add_order[1][0]} and {add_order[2][1].value} {add_order[2][0]}')
+
+    suggested_restaurant_str = f'According to your preferences i suggest this restaurant {restaurant_name}'
+    print(suggested_restaurant_str)
+    state_handler.previous_response = suggested_restaurant_str
 
 
 def inform_setting_user_preference(state_handler, extra_data=None, **kwargs):
@@ -358,16 +407,11 @@ def inform_setting_user_preference(state_handler, extra_data=None, **kwargs):
         extra_data = {}
 
     if 'state_changed' in extra_data:
-        suggested_restaurant = state_handler.restaurant_info.get_suggestions()
-        restaurant_name = suggested_restaurant['restaurantname']
+        print_suggest_restaurant(state_handler)
 
-        add_order = state_handler.user_model.add_order
+def reqalt_suggest_restaurant(state_handler, extra_data=None, **kwargs):
 
-        print(f'Your preferences are {add_order[0][1].value} {add_order[0][0]}, {add_order[1][1].value} {add_order[1][0]} and {add_order[2][1].value} {add_order[2][0]}')
-
-        suggested_restaurant_str = f'According to your preferences i suggest this restaurant {restaurant_name}'
-        print(suggested_restaurant_str)
-        state_handler.previous_response = suggested_restaurant_str
+    print_suggest_restaurant(state_handler)
 
 
 def affirm_notify_restaurant_selected(state_handler, extra_data=None, **kwargs):
@@ -482,7 +526,7 @@ state_response = {
         'negate': empty,
         'null': null_general,
         'repeat': empty,
-        'reqalts': empty,
+        'reqalts': inform_notify_user_of_preference,
         'reqmore': empty,
         'request': empty,
         'restart': response_restart,
@@ -499,7 +543,7 @@ state_response = {
         'negate': empty,
         'null': null_general,
         'repeat': empty,
-        'reqalts': empty,
+        'reqalts': reqalt_suggest_restaurant,
         'reqmore': empty,
         'request': empty,   # -
         'restart': empty,   # -
@@ -516,8 +560,8 @@ state_response = {
         'negate': empty,
         'null': null_general,
         'repeat': empty,
-        'reqalts': empty,
-        'reqmore': empty,
+        'reqalts': empty,   # -
+        'reqmore': empty,   # -
         'request': give_restaurant_information,
         'restart': empty,   # -
         'thankyou': empty   # -

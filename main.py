@@ -41,9 +41,6 @@ def do_conversation_step(state_handler: StateHandler):
 
 def handle_conversation_step(state_handler):
 
-    if not state_handler.continue_conversation():
-        return
-
     user_input = input('')
 
     speech_act = state_handler.lstm_model.predict_sentence(user_input)

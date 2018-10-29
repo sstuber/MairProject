@@ -145,6 +145,10 @@ def reqalt_update_information(state_handler, user_input, **kwargs):
 
     return extra_data
 
+def repeat_information(state_handler, user_input, **kwargs):
+
+    return {}
+
 
 # all functions must return a dict or None
 # modify user model
@@ -159,7 +163,7 @@ state_actions = {
         'inform': inform_user_model,
         'negate': empty,
         'null': empty,
-        'repeat': empty,
+        'repeat': request_information,
         'reqalts': reqalt_update_information,
         'reqmore': empty,
         'request': empty,
@@ -176,7 +180,7 @@ state_actions = {
         'inform': empty,
         'negate': empty,
         'null': empty,
-        'repeat': empty,
+        'repeat': request_information,
         'reqalts': reqalt_update_information,
         'reqmore': empty,
         'request': request_information,
@@ -193,7 +197,7 @@ state_actions = {
         'inform': empty,
         'negate': empty,
         'null': empty,
-        'repeat': empty,
+        'repeat': request_information,
         'reqalts': reqalt_update_information,
         'reqmore': empty,
         'request': request_information,
@@ -257,7 +261,10 @@ def change_state_reqalt_general(state_handler, extra_data = None, **kwargs):
 
 
 def no_state_change(state_handler, extra_data):
-    return {}
+    if extra_data is None:
+        extra_data = {}
+
+    return extra_data
 
 
 def change_end_conversation(state_handler, extra_data = None):
@@ -289,7 +296,7 @@ state_change = {
         'inform': change_state_inform_state,
         'negate': empty,
         'null': empty,
-        'repeat': empty,
+        'repeat': no_state_change,
         'reqalts': change_state_reqalt_general,
         'reqmore': empty,
         'request': empty,
@@ -306,7 +313,7 @@ state_change = {
         'inform': empty,
         'negate': empty,
         'null': empty,
-        'repeat': empty,
+        'repeat': no_state_change,
         'reqalts': change_state_reqalt_general,
         'reqmore': empty,
         'request': change_request,
@@ -323,7 +330,7 @@ state_change = {
         'inform': empty,
         'negate': empty,
         'null': empty,
-        'repeat': empty,
+        'repeat': no_state_change,
         'reqalts': change_state_reqalt_general,
         'reqmore': empty,
         'request': change_request,
@@ -453,15 +460,18 @@ def hello_other(state_handler, extra_data=None, **kwargs):
     state_handler.previous_response = suggested_restaurant_str
     print(suggested_restaurant_str)
 
+
 def hello_general(state_handler, extra_data =None, **kwargs):
     previous_response = state_handler.previous_response
 
     print(f'Hello! {previous_response}')
 
+
 def null_general(state_handler, extra_data =None, **kwargs):
     previous_response = state_handler.previous_response
 
     print(f'I did not understand you... {previous_response}')
+
 
 def end_conversation(state_handler, extra_data=None, **kwargs):
     if extra_data is None:
@@ -502,7 +512,6 @@ def give_restaurant_information(state_handler, extra_data=None, **kwargs):
             elif request == 'restaurantname':
                 response_str += 'name'
 
-
             response_str += " is " + selected_restaurant[request] + " and its "
 
         response_str = response_str[:-9]
@@ -513,11 +522,21 @@ def give_restaurant_information(state_handler, extra_data=None, **kwargs):
 
 
 def response_restart(state_handler, extra_data=None, **kwargs):
-    print("Hello, what can I do for you?")
+    response_str = "Hello, what can I do for you?"
+    state_handler.previous_response = response_str
+    print(response_str)
 
 
 def conversation_finished(state_handler, extra_data=None, **kwargs):
     print("The conversation has finished. Start over if you would like to find another restaurant.")
+
+
+def response_repeat(state_handler, extra_data=None, **kwargs):
+    if len(extra_data["requests"]) == 0:
+        print(state_handler.previous_response)
+    else:
+        print("----")
+        give_restaurant_information(state_handler, extra_data)
 
 
 # - should be impossible to reach
@@ -532,7 +551,7 @@ state_response = {
         'inform': inform_notify_user_of_preference,
         'negate': empty,
         'null': null_general,
-        'repeat': empty,
+        'repeat': response_repeat,
         'reqalts': inform_notify_user_of_preference,
         'reqmore': empty,
         'request': empty,
@@ -549,7 +568,7 @@ state_response = {
         'inform': inform_setting_user_preference,
         'negate': empty,
         'null': null_general,
-        'repeat': empty,
+        'repeat': response_repeat,
         'reqalts': reqalt_suggest_restaurant,
         'reqmore': empty,
         'request': empty,   # -
@@ -566,7 +585,7 @@ state_response = {
         'inform': empty,
         'negate': empty,
         'null': null_general,
-        'repeat': empty,
+        'repeat': response_repeat,
         'reqalts': empty,   # -
         'reqmore': empty,   # -
         'request': give_restaurant_information,

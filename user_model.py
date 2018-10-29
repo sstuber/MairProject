@@ -17,6 +17,7 @@ class Requestables(Enum):
     PostCode = 'postcode'
     Signature = 'signature'
     Name = 'name'
+    Any = ANY_PREFERENCE_CONSTANT
 
 
 class ConverstationSates(Enum):

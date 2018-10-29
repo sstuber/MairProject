@@ -1,5 +1,5 @@
 from get_preference_from_sentence import get_preference_from_sentence
-from user_model import UserModel, Requestables, ConverstationSates
+from user_model import UserModel, Requestables, ConverstationSates, ANY_PREFERENCE_CONSTANT
 from state_helper_functions import get_inform_requestable_dict, get_requestable_from_sentence, RestaurantInfo
 
 
@@ -64,6 +64,12 @@ def empty(*arg, **dict_args):
 
 
 def set_user_preference_from_simple_sentence(state_handler, user_input):
+    preferables = {
+        'area': Requestables.Area,
+        'price range': Requestables.PriceRange,
+        'food': Requestables.Food
+    }
+
     # handle preference
     requestable_list = get_requestable_from_sentence(user_input, state_handler.inform_to_requestable_dict)
 
@@ -71,6 +77,21 @@ def set_user_preference_from_simple_sentence(state_handler, user_input):
         return {'set_preference': []}
 
     first_word_requestable_tuple = requestable_list[0]
+
+# if any preference is stated then find out on what it is about
+    if first_word_requestable_tuple[1] == Requestables.Any:
+
+        preferred_list = get_requestable_from_sentence(user_input, preferables)
+
+        # if type of preference is not mentioned use missing
+        if len(preferred_list) == 0:
+            set_user_preference = state_handler.user_model.get_missing_preference()
+
+            first_word_requestable_tuple = (ANY_PREFERENCE_CONSTANT, set_user_preference)
+        else:
+            given_preference_tuple = preferred_list[0]
+            requestable_preference_type = given_preference_tuple[1]
+            first_word_requestable_tuple = (ANY_PREFERENCE_CONSTANT, requestable_preference_type)
 
     state_handler.user_model.replace_preference(first_word_requestable_tuple)
 

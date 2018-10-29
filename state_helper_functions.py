@@ -16,6 +16,9 @@ def get_inform_requestable_dict():
         for variable_word in value:
             variable_dict[variable_word] = Requestables(key)
 
+    variable_dict['any'] = Requestables.Any
+    variable_dict['anything'] = Requestables.Any
+
     return variable_dict
 
 

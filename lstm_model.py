@@ -69,6 +69,8 @@ class LstmModel:
 
     # given a numbered sentence it will return the name of the speech_act
     def predict_sentence(self, sentence):
+        sentence = re.sub(r'[^\w\s]', '', sentence)
+
         split_sentence = re.split(r'\s', sentence)
         numbered_sentence = list(map(self.classification_dict_object.get_testing_utterance_id, split_sentence))
         normalized_numbered_sentence = normalize_utterance_length(numbered_sentence)

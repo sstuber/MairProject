@@ -182,7 +182,7 @@ state_actions = {
         'deny': empty,
         'hello': no_action,
         'inform': inform_user_model,
-        'negate': empty,
+        'negate': empty,       #
         'null': empty,
         'repeat': request_information,
         'reqalts': reqalt_update_information,

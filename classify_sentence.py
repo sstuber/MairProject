@@ -10,6 +10,7 @@ def get_classification_data():
     classification_file = open(CLASSIFICATION_PATH)
 
     classification_str = classification_file.read()
+    classification_str = re.sub(r'[^\w\s]', '', classification_str)
 
     split_file = re.split(r'\n', classification_str)
 

@@ -391,6 +391,13 @@ def print_user_preferences(state_handler, extra_data=None):
     changed_preferences_string = 'Your preference is '
     changed_preferences = extra_data['set_preference']
 
+    if len(changed_preferences) == 0:
+        response_str = "Please give a specific preference."
+        state_handler.previous_response = response_str
+
+        print(response_str)
+        return
+
     if len(changed_preferences) > 1:
         changed_preferences_string = changed_preferences_plural_string
 

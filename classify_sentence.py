@@ -11,6 +11,7 @@ def get_classification_data():
 
     classification_str = classification_file.read()
     classification_str = re.sub(r'[^\w\s]', '', classification_str)
+    classification_str = classification_str.lower()
 
     split_file = re.split(r'\n', classification_str)
 

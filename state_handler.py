@@ -173,21 +173,22 @@ def repeat_information(state_handler, user_input, **kwargs):
 
 # all functions must return a dict or None
 # modify user model
+# null = doesnt understand (in current state), give null response
 state_actions = {
     ConverstationSates.Information: {
-        'ack': empty,
-        'affirm': empty,
+        'ack': no_action,       # null
+        'affirm': no_action,    # null
         'bye': no_action,
-        'confirm': empty,
-        'deny': empty,
+        'confirm': no_action,   # null
+        'deny': no_action,      # null
         'hello': no_action,
         'inform': inform_user_model,
-        'negate': empty,       #
-        'null': empty,
+        'negate': no_action,    # null
+        'null': no_action,
         'repeat': request_information,
         'reqalts': reqalt_update_information,
-        'reqmore': empty,
-        'request': empty,
+        'reqmore': no_action,   # null
+        'request': no_action,   # null
         'restart': restart_conversation,
         'thankyou': no_action
     },
@@ -195,32 +196,32 @@ state_actions = {
         'ack': affirm_suggested_restaurant,
         'affirm': affirm_suggested_restaurant,
         'bye': no_action,
-        'confirm': empty,
-        'deny': empty,
+        'confirm': no_action,   # null
+        'deny': no_action,      # null
         'hello': no_action,
-        'inform': empty,
-        'negate': empty,
-        'null': empty,
+        'inform': no_action,    # null
+        'negate': no_action,    # null
+        'null': no_action,
         'repeat': request_information,
         'reqalts': reqalt_update_information,
-        'reqmore': empty,
+        'reqmore': empty,   # moet nog
         'request': request_information,
         'restart': restart_conversation,
         'thankyou': no_action
     },
     ConverstationSates.RestaurantInformation: {
-        'ack': empty,
-        'affirm': empty,
+        'ack': no_action,       # null
+        'affirm': no_action,    # null
         'bye': no_action,
-        'confirm': empty,
-        'deny': empty,
+        'confirm': no_action,   # null
+        'deny': no_action,      # null
         'hello': no_action,
-        'inform': empty,
-        'negate': empty,
-        'null': empty,
+        'inform': reqalt_update_information,
+        'negate': no_action,    # null
+        'null': no_action,
         'repeat': request_information,
         'reqalts': reqalt_update_information,
-        'reqmore': empty,
+        'reqmore': empty,       # moet nog
         'request': request_information,
         'restart': restart_conversation,
         'thankyou': no_action
@@ -308,19 +309,19 @@ def change_request(state_handler, extra_data = None):
 # - should be impossible to reach
 state_change = {
     ConverstationSates.Information: {
-        'ack': empty,
-        'affirm': empty,
+        'ack': no_state_change,     # null
+        'affirm': no_state_change,  # null
         'bye': change_end_conversation,
-        'confirm': empty,
-        'deny': empty,
+        'confirm': no_state_change, # null
+        'deny': no_state_change,    # null
         'hello': no_state_change,
         'inform': change_state_inform_state,
-        'negate': empty,
-        'null': empty,
+        'negate': no_state_change,  # null
+        'null': no_state_change,
         'repeat': no_state_change,
         'reqalts': change_state_reqalt_general,
-        'reqmore': empty,
-        'request': empty,
+        'reqmore': empty,           # moet nog
+        'request': no_state_change, # null
         'restart': no_state_change,
         'thankyou': change_end_conversation
     },
@@ -328,32 +329,32 @@ state_change = {
         'ack': change_state_affirm_suggested_restaurant,
         'affirm': change_state_affirm_suggested_restaurant,
         'bye': change_end_conversation,
-        'confirm': empty,
-        'deny': empty,
+        'confirm': no_state_change, # null
+        'deny': no_state_change,    # null
         'hello': no_state_change,
-        'inform': empty,
-        'negate': empty,
-        'null': empty,
+        'inform': no_state_change,  # null
+        'negate': no_state_change,  # null
+        'null': no_state_change,
         'repeat': no_state_change,
         'reqalts': change_state_reqalt_general,
-        'reqmore': empty,
+        'reqmore': empty,           # moet nog
         'request': change_request,
         'restart': no_state_change,
         'thankyou': change_end_conversation
     },
     ConverstationSates.RestaurantInformation: {
-        'ack': empty,
-        'affirm': empty,
+        'ack': no_state_change,     # null
+        'affirm': no_state_change,  # null
         'bye': change_end_conversation,
-        'confirm': empty,
-        'deny': empty,
+        'confirm': no_state_change, # null
+        'deny': no_state_change,    # null
         'hello': no_state_change,
-        'inform': empty,
-        'negate': empty,
-        'null': empty,
+        'inform': no_state_change,  # null
+        'negate': no_state_change,  # null
+        'null': no_state_change,
         'repeat': no_state_change,
         'reqalts': change_state_reqalt_general,
-        'reqmore': empty,
+        'reqmore': no_state_change, # null
         'request': change_request,
         'restart': no_state_change,
         'thankyou': change_end_conversation
@@ -406,6 +407,7 @@ def inform_notify_user_of_preference(state_handler,extra_data = None, **kwargs):
 
     if 'set_preference' in extra_data:
         print_user_preferences(state_handler,extra_data)
+
 
 
 def print_suggest_restaurant(state_handler):
@@ -563,55 +565,55 @@ def response_repeat(state_handler, extra_data=None, **kwargs):
 # - should be impossible to reach
 state_response = {
     ConverstationSates.Information: {
-        'ack': empty,
-        'affirm': empty,
-        'bye': empty,       # -
-        'confirm': empty,
-        'deny': empty,
+        'ack': null_general,        # null
+        'affirm': null_general,     # null
+        'bye': empty,               # -
+        'confirm': null_general,    # null
+        'deny': null_general,       # null
         'hello': hello_general,
         'inform': inform_notify_user_of_preference,
-        'negate': empty,
+        'negate': null_general,     # null
         'null': null_general,
         'repeat': response_repeat,
         'reqalts': inform_notify_user_of_preference,
-        'reqmore': empty,
-        'request': empty,
+        'reqmore': empty,           # moet nog
+        'request': null_general,    # null
         'restart': response_restart,
-        'thankyou': empty   # -
+        'thankyou': empty           # -
     },
     ConverstationSates.SuggestRestaurant: {
         'ack': affirm_notify_restaurant_selected,
         'affirm': affirm_notify_restaurant_selected,
-        'bye': empty,       # -
-        'confirm': empty,
-        'deny': empty,
+        'bye': empty,               # -
+        'confirm': null_general,    # null
+        'deny': null_general,       # null
         'hello': hello_general,
         'inform': inform_setting_user_preference,
-        'negate': empty,
+        'negate': null_general,     # null
         'null': null_general,
         'repeat': response_repeat,
         'reqalts': reqalt_suggest_restaurant,
-        'reqmore': empty,
-        'request': empty,   # -
-        'restart': empty,   # -
-        'thankyou': empty   # -
+        'reqmore': empty,           # moet nog
+        'request': empty,           # -
+        'restart': empty,           # -
+        'thankyou': empty           # -
     },
     ConverstationSates.RestaurantInformation: {
         'ack': affirm_notify_restaurant_selected,
         'affirm': affirm_notify_restaurant_selected,
-        'bye': empty,       # -
-        'confirm': empty,
-        'deny': empty,
+        'bye': empty,               # -
+        'confirm': null_general,    # null
+        'deny': null_general,       # null
         'hello': hello_general,
-        'inform': empty,
-        'negate': empty,
+        'inform': empty,            # -
+        'negate': null_general,     # null
         'null': null_general,
         'repeat': response_repeat,
-        'reqalts': empty,   # -
-        'reqmore': empty,   # -
+        'reqalts': empty,           # -
+        'reqmore': empty,           # -
         'request': give_restaurant_information,
-        'restart': empty,   # -
-        'thankyou': empty   # -
+        'restart': empty,           # -
+        'thankyou': empty           # -
     },
     ConverstationSates.Finished: {
         'ack': conversation_finished,

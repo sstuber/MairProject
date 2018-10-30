@@ -29,6 +29,9 @@ class StateHandler:
         self.previous_response = ''
         self.restaurant_info.reset()
 
+    def is_restaurant_suggested(self):
+        return self.restaurant_info.selected_restaurant is not None
+
     def continue_conversation(self):
         if self.current_state == ConverstationSates.Finished:
             return False
@@ -66,6 +69,8 @@ def empty(*arg, **dict_args):
 
 
 def set_user_preference_from_simple_sentence(state_handler, user_input):
+
+    extra_data = {}
     preferables = {
         'area': Requestables.Area,
         'price range': Requestables.PriceRange,
@@ -82,6 +87,8 @@ def set_user_preference_from_simple_sentence(state_handler, user_input):
 
 # if any preference is stated then find out on what it is about
     if first_word_requestable_tuple[1] == Requestables.Any:
+
+        extra_data['any_set'] = True
 
         preferred_list = get_requestable_from_sentence(user_input, preferables)
 
@@ -104,7 +111,9 @@ def set_user_preference_from_simple_sentence(state_handler, user_input):
     if first_word_requestable_tuple is not None:
         set_preferences.append(first_word_requestable_tuple)
 
-    return {'set_preference': set_preferences}
+    extra_data["set_preference"] = set_preferences
+
+    return extra_data
 
 
 def inform_user_model(state_handler, user_input):
@@ -219,8 +228,8 @@ state_actions = {
         'thankyou': no_action
     },
     ConverstationSates.RestaurantInformation: {
-        'ack': no_action,       # null
-        'affirm': no_action,    # null
+        'ack': affirm_suggested_restaurant,
+        'affirm': affirm_suggested_restaurant,
         'bye': no_action,
         'confirm': no_action,   # null
         'deny': no_action,      # null
@@ -446,21 +455,21 @@ def print_suggest_restaurant(state_handler):
         food_preference=food_pref, pricerange_preference=price_pref, area_preference=area_pref
     )
 
+    add_order = state_handler.user_model.add_order
+    current_preferences_str = f'Your preferences are {add_order[0][0]} {add_order[0][1].value}, {add_order[1][0]} {add_order[1][1].value} and {add_order[2][0]} {add_order[2][1].value}'
+    print(current_preferences_str)
+
     if suggested_restaurant is None:
         no_restaurant_str = 'There is no restaurant with your preferences. Try to change your preferences'
         state_handler.previous_response = no_restaurant_str
         print(no_restaurant_str)
+        print('Or ask again to get the first suggestion if there was one')
+        state_handler.asked_for_preference = False
         return
 
     restaurant_name = suggested_restaurant['restaurantname']
 
-    add_order = state_handler.user_model.add_order
-
-    print(
-        f'Your preferences are {add_order[0][0]} {add_order[0][1].value}, {add_order[1][0]} {add_order[1][1].value} and {add_order[2][0]} {add_order[2][1].value}'
-    )
-
-    suggested_restaurant_str = f'According to your preferences i suggest this restaurant {restaurant_name}'
+    suggested_restaurant_str = f'According to your preferences i suggest {restaurant_name}'
     print(suggested_restaurant_str)
     state_handler.previous_response = suggested_restaurant_str
 
@@ -473,7 +482,9 @@ def inform_setting_user_preference(state_handler, extra_data=None, **kwargs):
         extra_data = {}
 
     if 'state_changed' in extra_data:
-        print_suggest_restaurant(state_handler)
+        return print_suggest_restaurant(state_handler)
+
+    null_general(state_handler, extra_data)
 
 def reqalt_suggest_restaurant(state_handler, extra_data=None, **kwargs):
 
@@ -634,7 +645,7 @@ state_response = {
         'confirm': null_general,    # null
         'deny': null_general,       # null
         'hello': hello_general,
-        'inform': empty,            # -
+        'inform': null_general,
         'negate': null_general,     # null
         'null': null_general,
         'repeat': response_repeat,

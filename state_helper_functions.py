@@ -66,8 +66,10 @@ class RestaurantInfo:
     def get_next_suggestion(self):
         self.current_index += 1
 
-        if self.current_index >= len(self.preferred_restaurant_list):
+        if self.current_index == len(self.preferred_restaurant_list):
             return None
+        elif self.current_index >= len(self.preferred_restaurant_list):
+            self.current_index = 0
 
         self.selected_restaurant = self.preferred_restaurant_list[self.current_index]
         return self.selected_restaurant

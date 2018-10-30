@@ -87,7 +87,10 @@ def set_user_preference_from_simple_sentence(state_handler, user_input):
         if len(preferred_list) == 0:
             set_user_preference = state_handler.user_model.get_missing_preference()
 
-            first_word_requestable_tuple = (ANY_PREFERENCE_CONSTANT, set_user_preference)
+            if set_user_preference is None:
+                first_word_requestable_tuple = None
+            else:
+                first_word_requestable_tuple = (ANY_PREFERENCE_CONSTANT, set_user_preference)
         else:
             given_preference_tuple = preferred_list[0]
             requestable_preference_type = given_preference_tuple[1]
@@ -95,7 +98,11 @@ def set_user_preference_from_simple_sentence(state_handler, user_input):
 
     state_handler.user_model.replace_preference(first_word_requestable_tuple)
 
-    return {'set_preference': [first_word_requestable_tuple]}
+    set_preferences = []
+    if first_word_requestable_tuple is not None:
+        set_preferences.append(first_word_requestable_tuple)
+
+    return {'set_preference': set_preferences}
 
 
 def inform_user_model(state_handler, user_input):

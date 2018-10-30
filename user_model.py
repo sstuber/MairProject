@@ -48,7 +48,10 @@ class UserModel:
         if self.preferences[Requestables.Food] is None:
             return Requestables.Food
 
-        return Requestables.PriceRange
+        if self.preferences[Requestables.PriceRange] is None:
+            return Requestables.PriceRange
+
+        return None
 
     def get_preference(self, requestable: Requestables):
 
@@ -83,6 +86,9 @@ class UserModel:
         self.preferences[requestable] = None
 
     def replace_preference(self,word_requestable_tuple):
+        if word_requestable_tuple is None:
+            return
+
         self.delete_preference(word_requestable_tuple[1])
 
         self.add_preference(word_requestable_tuple)

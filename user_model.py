@@ -75,7 +75,6 @@ class UserModel:
             return
 
         if self.preferences[requestable] is None:
-            print('preference already empty')
             return
 
         word = self.preferences[requestable]
@@ -83,12 +82,10 @@ class UserModel:
         self.add_order = list(filter(lambda x: x != (word, requestable), self.add_order))
         self.preferences[requestable] = None
 
-
     def replace_preference(self,word_requestable_tuple):
         self.delete_preference(word_requestable_tuple[1])
 
         self.add_preference(word_requestable_tuple)
-
 
     def add_preference(self, word_requestable_tuple):
 
@@ -98,12 +95,12 @@ class UserModel:
             print('invalid preference')
             return False
 
-        if self.preferences[requestable] is not None:
-            print('overwrite preference')
+        # if self.preferences[requestable] is not None:
+        #    print('overwrite preference')
 
         self.preferences[requestable] = word
 
-        print (f'preference {requestable} has changed to {self.preferences[requestable]}')
+        # print (f'preference {requestable} has changed to {self.preferences[requestable]}')
 
         self.add_order.append(word_requestable_tuple)
 

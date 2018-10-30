@@ -379,13 +379,17 @@ state_change = {
 }
 
 
-def print_user_preferences(state_handler,extra_data = None):
-    changed_preferences_string = 'Your preferences are '
+def print_user_preferences(state_handler, extra_data=None):
+    changed_preferences_plural_string = 'Your preferences are '
+    changed_preferences_string = 'Your preference is '
     changed_preferences = extra_data['set_preference']
+
+    if len(changed_preferences) > 1:
+        changed_preferences_string = changed_preferences_plural_string
 
     for i in range(len(changed_preferences)):
         preference = changed_preferences[i]
-        changed_preferences_string = f'{changed_preferences_string}{preference[1].value}: {preference[0]}'
+        changed_preferences_string = f'{changed_preferences_string} {preference[0]} {preference[1].value}'
 
         if i < len(changed_preferences) - 2:
             changed_preferences_string = f'{changed_preferences_string}, '
@@ -395,7 +399,12 @@ def print_user_preferences(state_handler,extra_data = None):
     print(changed_preferences_string)
 
     next_preference = state_handler.user_model.get_missing_preference()
-    next_preference_str = f'What would you like for {next_preference.value}'
+
+    # prevent chrashing
+    if next_preference is None:
+        return
+
+    next_preference_str = f'What {next_preference.value} would you like?'
 
     state_handler.previous_response = next_preference_str
     print(next_preference_str)

@@ -403,7 +403,7 @@ def print_user_preferences(state_handler, extra_data=None):
 
     for i in range(len(changed_preferences)):
         preference = changed_preferences[i]
-        changed_preferences_string = f'{changed_preferences_string} {preference[0]} {preference[1].value}'
+        changed_preferences_string = f'{changed_preferences_string}{preference[0]} {preference[1].value}'
 
         if i < len(changed_preferences) - 2:
             changed_preferences_string = f'{changed_preferences_string}, '
@@ -454,7 +454,8 @@ def print_suggest_restaurant(state_handler):
     add_order = state_handler.user_model.add_order
 
     print(
-        f'Your preferences are {add_order[0][1].value} {add_order[0][0]}, {add_order[1][1].value} {add_order[1][0]} and {add_order[2][1].value} {add_order[2][0]}')
+        f'Your preferences are {add_order[0][0]} {add_order[0][1].value}, {add_order[1][0]} {add_order[1][1].value} and {add_order[2][0]} {add_order[2][1].value}'
+    )
 
     suggested_restaurant_str = f'According to your preferences i suggest this restaurant {restaurant_name}'
     print(suggested_restaurant_str)

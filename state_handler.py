@@ -14,6 +14,7 @@ class StateHandler:
         self.inform_to_requestable_dict = get_inform_requestable_dict()
 
         # State variables
+        self.asked_for_preference = False
         self.selected_restaurand = None
         self.previous_response = None
         self.current_state: ConverstationSates = None
@@ -21,6 +22,7 @@ class StateHandler:
         self.reset_state()
 
     def reset_state(self):
+        self.asked_for_preference = False
         self.selected_restaurand = None
         self.user_model = UserModel()
         self.current_state = ConverstationSates.Information
@@ -87,7 +89,7 @@ def set_user_preference_from_simple_sentence(state_handler, user_input):
         if len(preferred_list) == 0:
             set_user_preference = state_handler.user_model.get_missing_preference()
 
-            if set_user_preference is None:
+            if set_user_preference is None or not state_handler.asked_for_preference:
                 first_word_requestable_tuple = None
             else:
                 first_word_requestable_tuple = (ANY_PREFERENCE_CONSTANT, set_user_preference)
@@ -422,6 +424,7 @@ def print_user_preferences(state_handler, extra_data=None):
 
     state_handler.previous_response = next_preference_str
     print(next_preference_str)
+    state_handler.asked_for_preference = True
 
 
 def inform_notify_user_of_preference(state_handler,extra_data = None, **kwargs):
@@ -460,6 +463,8 @@ def print_suggest_restaurant(state_handler):
     suggested_restaurant_str = f'According to your preferences i suggest this restaurant {restaurant_name}'
     print(suggested_restaurant_str)
     state_handler.previous_response = suggested_restaurant_str
+
+    state_handler.asked_for_preference = False
 
 
 def inform_setting_user_preference(state_handler, extra_data=None, **kwargs):

@@ -1,7 +1,7 @@
 from get_preference_from_sentence import get_preference_from_sentence
 from user_model import UserModel, Requestables, ConverstationSates, ANY_PREFERENCE_CONSTANT
 from state_helper_functions import get_inform_requestable_dict, get_requestable_from_sentence, RestaurantInfo
-
+import re
 
 # this class should handle the state and its constants
 class StateHandler:
@@ -213,7 +213,7 @@ state_actions = {
         'confirm': no_action,   # null
         'deny': no_action,      # null
         'hello': no_action,
-        'inform': no_action,    # null
+        'inform': reqalt_update_information,    # null
         'negate': no_action,    # null
         'null': no_action,
         'repeat': request_information,
@@ -352,7 +352,7 @@ state_change = {
         'confirm': no_state_change, # null
         'deny': no_state_change,    # null
         'hello': no_state_change,
-        'inform': no_state_change,  # null
+        'inform': change_state_reqalt_general,  # null
         'negate': no_state_change,  # null
         'null': no_state_change,
         'repeat': no_state_change,
@@ -369,7 +369,7 @@ state_change = {
         'confirm': no_state_change,  # null
         'deny': no_state_change,    # null
         'hello': no_state_change,
-        'inform': no_state_change,  # null
+        'inform': change_state_reqalt_general,  # null
         'negate': no_state_change,  # null
         'null': no_state_change,
         'repeat': no_state_change,
@@ -416,6 +416,7 @@ def print_user_preferences(state_handler, extra_data=None):
 
     for i in range(len(changed_preferences)):
         preference = changed_preferences[i]
+
         changed_preferences_string = f'{changed_preferences_string}{preference[0]} {preference[1].value}'
 
         if i < len(changed_preferences) - 2:
@@ -423,6 +424,8 @@ def print_user_preferences(state_handler, extra_data=None):
         elif i < len(changed_preferences) - 1:
             changed_preferences_string = f'{changed_preferences_string} and '
 
+    changed_preferences_string = changed_preferences_string + "."
+    changed_preferences_string = re.sub("pricerange", "price range", changed_preferences_string)
     print(changed_preferences_string)
 
     next_preference = state_handler.user_model.get_missing_preference()
@@ -432,6 +435,7 @@ def print_user_preferences(state_handler, extra_data=None):
         return
 
     next_preference_str = f'What {next_preference.value} would you like?'
+    next_preference_str = re.sub("pricerange", "price range", next_preference_str)
 
     state_handler.previous_response = next_preference_str
     print(next_preference_str)
@@ -446,7 +450,6 @@ def inform_notify_user_of_preference(state_handler,extra_data = None, **kwargs):
         print_user_preferences(state_handler,extra_data)
 
 
-
 def print_suggest_restaurant(state_handler):
 
     food_pref = state_handler.user_model.get_preference(Requestables.Food)
@@ -459,19 +462,20 @@ def print_suggest_restaurant(state_handler):
 
     add_order = state_handler.user_model.add_order
     current_preferences_str = f'Your preferences are {add_order[0][0]} {add_order[0][1].value}, {add_order[1][0]} {add_order[1][1].value} and {add_order[2][0]} {add_order[2][1].value}'
+    current_preferences_str = re.sub("pricerange", "price range", current_preferences_str)
     print(current_preferences_str)
 
     if suggested_restaurant is None:
-        no_restaurant_str = 'There is no restaurant with your preferences. Try to change your preferences'
+        no_restaurant_str = 'There is no restaurant with your preferences. Try changing your preferences.'
         state_handler.previous_response = no_restaurant_str
-        print(no_restaurant_str)
-        print('Or ask again to get the first suggestion if there was one')
+        print(no_restaurant_str, end=" ")
+        print('Or ask again to get the first suggestion if there was one.')
         state_handler.asked_for_preference = False
         return
 
     restaurant_name = suggested_restaurant['restaurantname']
 
-    suggested_restaurant_str = f'According to your preferences i suggest {restaurant_name}'
+    suggested_restaurant_str = f'According to your preferences I suggest {restaurant_name}'
     print(suggested_restaurant_str)
     state_handler.previous_response = suggested_restaurant_str
 
@@ -562,6 +566,8 @@ def end_conversation(state_handler, extra_data=None, **kwargs):
 def give_restaurant_information(state_handler, extra_data=None, **kwargs):
     if extra_data is None:
         print("Sorry, I did not understand your request.")
+    elif state_handler.selected_restaurant is None:
+        null_general(state_handler, extra_data)
     else:
         selected_restaurant = state_handler.selected_restaurant
         response_str = selected_restaurant['restaurantname'] + "'s "
@@ -605,7 +611,6 @@ def response_repeat(state_handler, extra_data=None, **kwargs):
     if len(extra_data["requests"]) == 0:
         print(state_handler.previous_response)
     else:
-        print("----")
         give_restaurant_information(state_handler, extra_data)
 
 
@@ -635,7 +640,7 @@ state_response = {
         'confirm': null_general,    # null
         'deny': null_general,       # null
         'hello': hello_general,
-        'inform': inform_setting_user_preference,
+        'inform': reqalt_suggest_restaurant,
         'negate': null_general,     # null
         'null': null_general,
         'repeat': response_repeat,

@@ -222,7 +222,7 @@ state_actions = {
         'null': no_action,
         'repeat': request_information,
         'reqalts': reqalt_update_information,
-        'reqmore': empty,   # moet nog
+        'reqmore': no_action,   # moet nog
         'request': request_information,
         'restart': restart_conversation,
         'thankyou': no_action
@@ -239,7 +239,7 @@ state_actions = {
         'null': no_action,
         'repeat': request_information,
         'reqalts': reqalt_update_information,
-        'reqmore': empty,       # moet nog
+        'reqmore': no_action,       # moet nog
         'request': request_information,
         'restart': restart_conversation,
         'thankyou': no_action
@@ -295,7 +295,13 @@ def change_state_affirm_suggested_restaurant(state_handler, extra_data = None, *
 
 # if inform and not everything filled we stay in inform
 # if any other state changing 1 preference will keep everything filled thus we can suggest a restaurant anyway
-def change_state_reqalt_general(state_handler, extra_data = None, **kwargs):
+
+def change_state_reqalt_general(state_handler, extra_data=None, **kwargs):
+    check_preference_and_suggest_restaurant(state_handler, extra_data)
+    return extra_data
+
+
+def change_state_reqmore_general(state_handler, extra_data=None, **kwargs):
     check_preference_and_suggest_restaurant(state_handler, extra_data)
     return extra_data
 
@@ -338,8 +344,8 @@ state_change = {
         'null': no_state_change,
         'repeat': no_state_change,
         'reqalts': change_state_reqalt_general,
-        'reqmore': empty,           # moet nog
-        'request': no_state_change, # null
+        'reqmore': no_state_change,
+        'request': no_state_change,  # null
         'restart': no_state_change,
         'thankyou': change_end_conversation
     },
@@ -355,7 +361,7 @@ state_change = {
         'null': no_state_change,
         'repeat': no_state_change,
         'reqalts': change_state_reqalt_general,
-        'reqmore': empty,           # moet nog
+        'reqmore': change_state_reqmore_general,           # moet nog
         'request': change_request,
         'restart': no_state_change,
         'thankyou': change_end_conversation
@@ -364,7 +370,7 @@ state_change = {
         'ack': no_state_change,     # null
         'affirm': no_state_change,  # null
         'bye': change_end_conversation,
-        'confirm': no_state_change, # null
+        'confirm': no_state_change,  # null
         'deny': no_state_change,    # null
         'hello': no_state_change,
         'inform': no_state_change,  # null
@@ -372,7 +378,7 @@ state_change = {
         'null': no_state_change,
         'repeat': no_state_change,
         'reqalts': change_state_reqalt_general,
-        'reqmore': no_state_change, # null
+        'reqmore': change_state_reqmore_general,  # null
         'request': change_request,
         'restart': no_state_change,
         'thankyou': change_end_conversation
@@ -486,8 +492,13 @@ def inform_setting_user_preference(state_handler, extra_data=None, **kwargs):
 
     null_general(state_handler, extra_data)
 
+
 def reqalt_suggest_restaurant(state_handler, extra_data=None, **kwargs):
 
+    print_suggest_restaurant(state_handler)
+
+
+def reqmore_change_restaurant(state_handler, extra_data=None, **kwargs):
     print_suggest_restaurant(state_handler)
 
 
@@ -616,7 +627,7 @@ state_response = {
         'null': null_general,
         'repeat': response_repeat,
         'reqalts': inform_notify_user_of_preference,
-        'reqmore': empty,           # moet nog
+        'reqmore': null_general,
         'request': null_general,    # null
         'restart': response_restart,
         'thankyou': empty           # -
@@ -633,7 +644,7 @@ state_response = {
         'null': null_general,
         'repeat': response_repeat,
         'reqalts': reqalt_suggest_restaurant,
-        'reqmore': empty,           # moet nog
+        'reqmore': reqmore_change_restaurant,
         'request': empty,           # -
         'restart': empty,           # -
         'thankyou': empty           # -

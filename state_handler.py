@@ -3,7 +3,6 @@ from user_model import UserModel, Requestables, ConverstationSates, ANY_PREFEREN
 from state_helper_functions import get_inform_requestable_dict, get_requestable_from_sentence, RestaurantInfo
 
 
-
 # this class should handle the state and its constants
 class StateHandler:
 
@@ -39,14 +38,11 @@ class StateHandler:
         return True
 
     def do_action(self, speech_act, sentence):
-        stateactions = state_actions
         return state_actions[self.current_state][speech_act](state_handler=self, user_input=sentence)
 
-    # paramaters should incluse information form do aciton
-    def generate_response(self, speech_act, extra_data_dict = None):
-        # TODO change to function that depends on the user_state
+    # parameters should include information form do aciton
+    def generate_response(self, speech_act, extra_data_dict=None):
         state_response[self.current_state][speech_act](state_handler=self, extra_data=extra_data_dict)
-        print(f'response generated for: {speech_act}')
 
     # change current state variable based on speech_act
     def change_state(self, speech_act, extra_data_dict = None):

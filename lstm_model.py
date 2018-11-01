@@ -62,10 +62,27 @@ class LstmModel:
 
         # Print percentage correctly predicted
         correct = 0
+        total_per_speech_act = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        correct_per_speech_act = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         for i in range(len(test_labels)):
+            print(self.classification_dict_object.speech_act_dict[test_labels[i]], " : ", self.classification_dict_object.speech_act_dict[predicted_labels[i]])
+            total_per_speech_act[test_labels[i]] += 1
+
             if predicted_labels[i] == test_labels[i]:
                 correct += 1
-        print(correct / len(test_labels))
+                correct_per_speech_act[test_labels[i]] += 1
+
+        for i in range(14):
+            print(self.classification_dict_object.speech_act_dict[i], end=": ")
+            print("total =", total_per_speech_act[i], end=", ")
+            print("correct =", correct_per_speech_act[i], end=", ")
+            print("percentage =", correct_per_speech_act[i]/total_per_speech_act[i])
+
+        print("overall percentage correct", correct / len(test_labels))
+
+
+
+
 
     # given a numbered sentence it will return the name of the speech_act
     def predict_sentence(self, sentence):

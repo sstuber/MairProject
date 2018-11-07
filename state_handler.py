@@ -568,6 +568,8 @@ def give_restaurant_information(state_handler, extra_data=None, **kwargs):
         print("Sorry, I did not understand your request.")
     elif state_handler.selected_restaurant is None:
         null_general(state_handler, extra_data)
+    elif 'requests' not in extra_data or len(extra_data['requests']) == 0:
+        null_general(state_handler, extra_data)
     else:
         selected_restaurant = state_handler.selected_restaurant
         response_str = selected_restaurant['restaurantname'] + "'s "

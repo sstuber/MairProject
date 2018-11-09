@@ -1,7 +1,12 @@
 from get_preference_from_sentence import ONTOLOGY_PATH
-from user_model import UserModel, Requestables, ConverstationSates, ANY_PREFERENCE_CONSTANT
+from user_model import Requestables, ANY_PREFERENCE_CONSTANT
+
+from Levenshtein.StringMatcher import StringMatcher
+from get_preference_from_sentence import find_closest_match
 import json
 import csv
+import re
+
 
 def get_inform_requestable_dict():
     file = open(ONTOLOGY_PATH)
@@ -25,11 +30,25 @@ def get_inform_requestable_dict():
 # return word + requestable
 def get_requestable_from_sentence(sentence: str, requestable_dict):
 
+    no_punctual_sentence = re.sub(r'[^\w\s]', '', sentence)
+    lowercase_sentence = no_punctual_sentence.lower()
+    split_sentence = re.split(r'\s+', lowercase_sentence)
+
     results = []
     for word, requestable in requestable_dict.items():
 
         if word in sentence:
             results.append((word, requestable))
+
+    if len(results) > 0:
+        return results
+
+    for word in split_sentence:
+        closest_match, closest_requestable = find_closest_match(requestable_dict, word)
+        word_distance = StringMatcher(seq1=word, seq2=closest_match).distance()
+
+        if word_distance <= 2:
+            results.append((closest_match, closest_requestable))
 
     return results
 
